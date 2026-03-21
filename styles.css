@@ -1,0 +1,81 @@
+* {
+  font-family: "Nunito", sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  text-decoration: none;
+  outline: none;
+  border: none;
+  text-transform: capitalize;
+  transition: all 0.2s linear;
+}
+
+html {
+  font-size: 62.5%;
+  overflow-x: hidden;
+  scroll-padding-top: 5.5rem;
+  scroll-behavior: smooth;
+  background: black;
+  color: white;
+}
+
+.header {
+  width: 100%;
+  background: red;
+  padding: 0 7vw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  color: #fff;
+}
+
+.header .logo {
+  font-size: 16px;
+  font-weight: bolder;
+}
+.navbar ul {
+  text-align: center;
+}
+.navbar ul li {
+  display: inline-block;
+  padding: 0 1rem;
+  list-style: none;
+}
+
+.navbar a {
+  display: block;
+  padding: 15px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff;
+}
+header .navbar a.active {
+  background: rgb(0, 0, 0) ;
+}
+header .navbar a:hover {
+  background:   rgb(43, 42, 42);
+  padding: 0.6rem;
+}
+header .icons i {
+  cursor: pointer;
+  margin-left: 0.5rem;
+  height: 4.5rem;
+  line-height: 4.5rem;
+  width: 4.5rem;
+  text-align: center;
+  font-size: 1, 7rem;
+  color: #fff;
+  border-radius: 50%;
+}
+
+header .icons i:hover {
+  color: #fff;
+  background-color: black;
+  transform: rotate(360deg);
+}
+
+h1 {
+  text-align: center;
+  font-family: "Times New Roman", Times, serif;
+}
