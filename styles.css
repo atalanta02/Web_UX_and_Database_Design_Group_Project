@@ -8,6 +8,7 @@
   border: none;
   text-transform: capitalize;
   transition: all 0.2s linear;
+  background: url("img/main_background.jpeg");
 }
 
 html {
@@ -15,19 +16,18 @@ html {
   overflow-x: hidden;
   scroll-padding-top: 5.5rem;
   scroll-behavior: smooth;
-  background: black;
   color: white;
 }
 
 .header {
   width: 100%;
-  background: red;
   padding: 0 7vw;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 30px;
+  margin-bottom: 0px;
   color: #fff;
+  background-color: rgba(red);
 }
 
 .header .logo {
@@ -41,6 +41,7 @@ html {
   display: inline-block;
   padding: 0 1rem;
   list-style: none;
+background-color: red;
 }
 
 .navbar a {
@@ -51,10 +52,10 @@ html {
   color: #fff;
 }
 header .navbar a.active {
-  background: rgb(0, 0, 0) ;
+  background: rgb(0, 0, 0);
 }
 header .navbar a:hover {
-  background:   rgb(43, 42, 42);
+  background: rgb(43, 42, 42);
   padding: 0.6rem;
 }
 header .icons i {
@@ -75,15 +76,57 @@ header .icons i:hover {
   transform: rotate(360deg);
 }
 
-h1 {
-  text-align: center;
-  font-family: "Times New Roman", Times, serif;
+/*main section*/
+#main_section{
+  height: 1000px;
+  padding: 10px; 
 }
+
+h1{
+  text-align: center;
+}
+
+.main-feature {
+  background:
+    linear-gradient(to bottom, rgba(0, 0, 0, 0), #151515),
+    url("img/featured-img.jpg");
+  height: 300px;
+  }
+
+.featured-title {
+  width: 200px;
+  font-size: x-large;
+}
+
+.featured-desc {
+  width: 500px;
+  color: lightgray;
+  margin: 30px 0;
+  font-size: 15px;
+ background-color: rgba(0, 0, 0, 0);
+}
+
+.featured-button {
+  background: red;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  font-weight: bold;
+}
+
+
+
+
+
+
+
 
 /*footer style*/
 .site-footer {
-  background: red;
-  color: black;
+  background-color: rgba(0, 0, 0, 0);
+  color: white;
   padding: 20px 0;
   font-family: sans-serif;
 }
@@ -98,7 +141,6 @@ h1 {
   gap: 25%;
 }
 
-
 .footer-section {
   flex: 1;
   min-width: 200px;
@@ -106,7 +148,7 @@ h1 {
 }
 
 .footer-section a {
-  color: black;
+  color: white;
   text-decoration: none;
   margin-right: 15px;
   display: inline-flex;
