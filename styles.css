@@ -229,12 +229,28 @@ h1 {
   cursor: pointer;
 }
 
+/*js*/
+.toggle.active {
+  background-color: black;
+}
+
+.toggle-ball.active {
+  background-color: white;
+  transform: translateX(-20px);
+}
+
+
 /*footer style*/
 .site-footer {
   background: red;
-  color: black;
+  color: #000;
   padding: 20px 0;
   font-family: sans-serif;
+  font-size: 1.2em;
+}
+
+.site-footer h4{
+  color: #fff;
 }
 
 .footer-container {
@@ -254,8 +270,8 @@ h1 {
 }
 
 .footer-section a {
-  color: black;
-  text-decoration: none;
+  color: #000;
+  text-decoration: underline;
   margin-right: 15px;
   display: inline-flex;
   align-items: center;
@@ -268,6 +284,10 @@ h1 {
   vertical-align: middle;
 }
 
+.footer-section p{
+  color: #fff;
+}
+
 .footer-bottom {
   border-top: 1px solid #444;
   margin-top: 20px;
@@ -278,6 +298,8 @@ h1 {
 
 .footer-bottom p {
   text-align: center;
+  font-weight: bold;
+  color: #fff;
 }
 
 /*smaller screen*/
@@ -287,34 +309,4 @@ h1 {
   }
 }
 
-/*Testing*/
-.container.active {
-  background-color: white;
-}
 
-.movie-list-title.active {
-  color: black;
-}
-
-.navbar-container.active {
-  background-color: white;
-
-  color: black;
-}
-
-.sidebar.active {
-  background-color: white;
-}
-
-.left-menu-icon.active {
-  color: black;
-}
-
-.toggle.active {
-  background-color: black;
-}
-
-.toggle-ball.active {
-  background-color: white;
-  transform: translateX(-20px);
-}
