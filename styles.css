@@ -8,7 +8,6 @@
   border: none;
   text-transform: capitalize;
   transition: all 0.2s linear;
-  background: url("img/main_background.jpeg");
 }
 
 html {
@@ -16,18 +15,19 @@ html {
   overflow-x: hidden;
   scroll-padding-top: 5.5rem;
   scroll-behavior: smooth;
+  background: black;
   color: white;
 }
-
+/*Header*/
 .header {
   width: 100%;
+  background: red;
   padding: 0 7vw;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0px;
+  margin-bottom: 30px;
   color: #fff;
-  background-color: rgba(red);
 }
 
 .header .logo {
@@ -41,7 +41,6 @@ html {
   display: inline-block;
   padding: 0 1rem;
   list-style: none;
-background-color: red;
 }
 
 .navbar a {
@@ -77,25 +76,28 @@ header .icons i:hover {
 }
 
 /*main section*/
-#main_section{
-  height: 1000px;
-  padding: 10px; 
+#main_section {
+  height: 310px;
+  padding: 0px;
+  margin-bottom: 10px;
 }
 
-h1{
+h1 {
   text-align: center;
 }
 
-.main-feature {
+#main-feature {
   background:
     linear-gradient(to bottom, rgba(0, 0, 0, 0), #151515),
-    url("img/featured-img.jpg");
+    url("img/featured-img.jpeg");
   height: 300px;
-  }
+  padding: 10px;
+}
 
 .featured-title {
   width: 200px;
   font-size: x-large;
+  margin-left: 10px;
 }
 
 .featured-desc {
@@ -103,7 +105,8 @@ h1{
   color: lightgray;
   margin: 30px 0;
   font-size: 15px;
- background-color: rgba(0, 0, 0, 0);
+  background-color: rgba(0, 0, 0, 0);
+  margin-left: 10px;
 }
 
 .featured-button {
@@ -114,19 +117,122 @@ h1{
   border: none;
   outline: none;
   font-weight: bold;
+  margin-left: 100px;
+}
+/*movie main*/
+#movie-feature {
+  background:
+    linear-gradient(to bottom, rgba(0, 0, 0, 0), #151515),
+    url("img/featured-movie-img.jpg");
+  height: 300px;
+  padding: 10px;
+}
+/*tv main*/
+#tv-feature {
+  background:
+    linear-gradient(to bottom, rgba(0, 0, 0, 0), #151515),
+    url("img/featured-tv-img.png");
+  height: 300px;
+  padding: 10px;
 }
 
+/*movies and tv shows*/
+.movie-list-container {
+  padding: 0 20px;
+  margin-top: 20px;
+}
 
+.movie-list-wrapper {
+  position: relative;
+  overflow: hidden;
+}
 
+.movie-list {
+  display: flex;
+  align-items: center;
+  height: 350px;
+  transform: translateX(0);
+  transition: all 1s ease-in-out;
+}
 
+.movie-list-item {
+  margin-right: 30px;
+  position: relative;
+}
 
+.movie-list-item:hover .movie-list-item-img {
+  transform: scale(1.2);
+  margin: 0 30px;
+  opacity: 0.5;
+}
 
+.movie-list-item:hover .movie-list-item-title,
+.movie-list-item:hover .movie-list-item-desc,
+.movie-list-item:hover .movie-list-item-button {
+  opacity: 1;
+}
 
+.movie-list-item-img {
+  transition: all 1s ease-in-out;
+  width: 270px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+.movie-list-item-title {
+  background: #333;
+  padding: 0 10px;
+  font-size: 32px;
+  font-weight: bold;
+  position: absolute;
+  top: 10%;
+  left: 50px;
+  opacity: 0;
+  transition: 1s all ease-in-out;
+}
+
+.movie-list-item-desc {
+  background: #333;
+  padding: 10px;
+  font-size: 14px;
+  position: absolute;
+  top: 30%;
+  left: 50px;
+  width: 230px;
+  opacity: 0;
+  transition: 1s all ease-in-out;
+}
+
+.movie-list-item-button {
+  padding: 10px;
+  background: red;
+  color: white;
+  border-radius: 10px;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  bottom: 20px;
+  left: 50px;
+  opacity: 0;
+  transition: 1s all ease-in-out;
+}
+
+.arrow {
+  font-size: 120px;
+  position: absolute;
+  top: 90px;
+  right: 0;
+  color: lightgray;
+  opacity: 0.5;
+  cursor: pointer;
+}
 
 /*footer style*/
 .site-footer {
-  background-color: rgba(0, 0, 0, 0);
-  color: white;
+  background: red;
+  color: black;
   padding: 20px 0;
   font-family: sans-serif;
 }
@@ -148,7 +254,7 @@ h1{
 }
 
 .footer-section a {
-  color: white;
+  color: black;
   text-decoration: none;
   margin-right: 15px;
   display: inline-flex;
@@ -172,4 +278,43 @@ h1{
 
 .footer-bottom p {
   text-align: center;
+}
+
+/*smaller screen*/
+@media only screen and (max-width: 940px) {
+  .menu-container {
+    display: none;
+  }
+}
+
+/*Testing*/
+.container.active {
+  background-color: white;
+}
+
+.movie-list-title.active {
+  color: black;
+}
+
+.navbar-container.active {
+  background-color: white;
+
+  color: black;
+}
+
+.sidebar.active {
+  background-color: white;
+}
+
+.left-menu-icon.active {
+  color: black;
+}
+
+.toggle.active {
+  background-color: black;
+}
+
+.toggle-ball.active {
+  background-color: white;
+  transform: translateX(-20px);
 }
