@@ -13,6 +13,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CineTV</title>
     <link rel="stylesheet" href="styles.css" />
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   </head>
   <body>
     <!-- header -->
@@ -44,65 +47,18 @@
     <!-- header ends-->
 
     <!-- main section-->
-      <!-- main section-->
-    <main id="movie_main">
-      <h1>Movies</h1>
-      <div id="movie-feature">
-        <span class="featured-title">Scream</span>
-        <p class="featured-desc">
-          When a new Ghostface killer emerges in the town where Sidney Prescott
-          has built a new life, her darkest fears are realized as her daughter
-          becomes the next target.
-        </p>
-        <button class="featured-button">WATCH</button>
-      </div>
-      <div class="movie-list-container">
-          <div class="movie-list-wrapper">
-            <div class="movie-list">
-              <div class="movie-list-item">
-                <img class="movie-list-item-img" src="img/1.jpg" alt="">
-                <span class="movie-list-item-title">Zootopia</span>
-                <p class="movie-list-item-desc">Brave rabbit cop Judy Hopps and her friend, the fox Nick Wilde, team up again to crack a new case, the most perilous and intricate of their careers.</p>
-                <button class="movie-list-item-button">Watch</button>
-              </div>
-              <div class="movie-list-item">
-                <img class="movie-list-item-img" src="img/2.jpeg" alt="">
-                <span class="movie-list-item-title">F1</span>
-                <p class="movie-list-item-desc">A Formula One driver comes out of retirement to mentor and team up with a younger driver.</p>
-                <button class="movie-list-item-button">Watch</button>
-              </div>
-              <div class="movie-list-item">
-                <img class="movie-list-item-img" src="img/3.png" alt="">
-                <span class="movie-list-item-title">Dune</span>
-                <p class="movie-list-item-desc">Paul Atreides unites with the Fremen while on a warpath of revenge against the conspirators who destroyed his family. Facing a choice between the love of his life and the fate of the universe, he endeavors to prevent a terrible future.</p>
-                <button class="movie-list-item-button">Watch</button>
-              </div>
-              <div class="movie-list-item">
-                <img class="movie-list-item-img" src="img/4.jpg" alt="">
-                <span class="movie-list-item-title">The Red Line</span>
-                <p class="movie-list-item-desc">Three women fall prey to a ruthless phone scam. To settle the score, they'll take on the criminal network that stole their money and their dignity.</p>
-                <button class="movie-list-item-button">Watch</button>
-              </div>
-              <div class="movie-list-item">
-                <img class="movie-list-item-img" src="img/5.jpg" alt="">
-                <span class="movie-list-item-title">Project Hail Mary</span>
-                <p class="movie-list-item-desc">A science teacher wakes up alone on a spaceship. As his memory returns, he uncovers a mission to stop a mysterious substance killing Earth's sun and that an unexpected friendship may be the key.</p>
-                <button class="movie-list-item-button">Watch</button>
-              </div>
-              <div class="movie-list-item">
-                <img class="movie-list-item-img" src="img/6.jpeg" alt="">
-                <span class="movie-list-item-title">Mike & Nick & Nick & Alice</span>
-                <p class="movie-list-item-desc">Two friends navigate the dangerous world of organized crime, testing their loyalty and survival skills as they get deeper into the criminal underworld.</p>
-                <button class="movie-list-item-button">Watch</button>
-              </div>
-          </div>
-          <i class="fas fa-chevron-right arrow"></i>
+       <main>
+        <div class="container">
+            <h1 class="page-title">Movies</h1>
+            <div id="alerts"></div>
+            <div id="movies-container" class="movies-grid">
+                <div class="loading"></div>
+            </div>
         </div>
     </main>
     <!-- main section end-->
-    
 
-    <!-- footer section end-->
+    <!-- footer section -->
     <footer class="site-footer">
       <div class="footer-container">
         <div class="footer-section social">
@@ -138,8 +94,9 @@
     <!-- footer section end-->
 
     <!-- script-->
-    <script src="app.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="movies-grid.js"></script>
 
   </body>
 </html>

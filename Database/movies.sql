@@ -1,7 +1,5 @@
 /* Drop tables.  */
 DROP table if exists UserProfile;
-DROP table if exists Role;
-DROP table if exists Actor;
 DROP table if exists Movie;
 DROP table if exists Type;
 
@@ -17,25 +15,13 @@ Create table Type(
   category varchar(100)
 );
 
-Create table Actor(
-  id integer primary key,
-  name varchar(100)  
-);
-
 Create table Movie(
   id integer primary key,
   title varchar(100),
   type_id integer,
+  description TEXT,
+  image_url varchar(255),
   foreign key (type_id)references type(id)
-);
-
-Create table Role(
-  id integer primary key,
-  movie_id integer,
-  actor_id integer,
-  character varchar(100),
-  foreign key (movie_id)references movie(id),
-  foreign key (actor_id)references actor(id)
 );
 
 /* insert into tables.  */
@@ -46,15 +32,12 @@ Insert into UserProfile  values
 Insert into Type values(1, 'Movie');
 Insert into Type values(2, 'TV Show');
 
-Insert into Actor values
-    (1,'Camila Morrone'),
-    (2,'Mckenna Grace');
-
 Insert into Movie values
-    (1,'Something Bad Is Going To Happen',2),
-    (2,'Scream 7',1);
+    (1,'Something Bad Is Going To Happen',2,'A certain atmosphere of horror is felt the week before the celebration of an unfortunate wedding.','https://images.justwatch.com/poster/341255798/s718/something-very-bad-is-going-to-happen.jpg'),
+    (2,'Scream 7',1,'When a new Ghostface killer emerges in the town where Sidney Prescott
+          has built a new life, her darkest fears are realized as her daughter
+          becomes the next target.','https://cdn.theplaylist.net/wp-content/uploads/2026/02/07165601/Scream-7.jpg');
 
-Insert into Role values
-    (1,1,1,'Rachel'),
-    (2,2,2,'Hannah Thurman');
 
+
+i 
