@@ -77,7 +77,7 @@ header .icons i:hover {
 
 /*main section*/
 #main_section {
-  height: 400px;
+  height: 700px;
   padding: 0px;
   margin-bottom: 10px;
 }
@@ -88,48 +88,49 @@ h1 {
 }
 
 #main-feature {
+  position: relative; 
   background:
     linear-gradient(to bottom, rgba(0, 0, 0, 0), #151515),
     url("featured_img.png");
-  height: 400px;
+  background-size: cover;
+  background-position: center;
+  height: 600px;
+  padding: 20px;
+}
+
+
+.featured-title,
+.featured-desc {
+  position: absolute;
+  left: 20px;
+  color: #fff;
+}
+
+/* Stack them from the bottom */
+.featured-desc {
+  bottom: 20px;
+  max-width: 600px; 
+  font-size: 1.5rem;
+  line-height: 1.5;
+  color: #ddd;
 }
 
 .featured-title {
-  width: 200px;
-  font-size: x-large;
-  margin-left: 10px;
-}
-
-.featured-desc {
-  width: 500px;
-  color: lightgray;
-  margin: 30px 0;
-  font-size: 15px;
-  background-color: rgba(0, 0, 0, 0);
-  margin-left: 10px;
-}
-
-.featured-button {
-  background: red;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: none;
-  outline: none;
-  font-weight: bold;
-  margin-left: 100px;
+  bottom: 100px; 
+  font-size: 2.5rem;
+  font-weight: bolder;
+  margin: 0;
 }
 
 /* CRUD section */
 .crud-section {
   background: #070707;
   padding: 0 4rem;
-
+  margin-bottom: 10px;
 }
 .crud-container {
   max-width: 1200px;
   margin: 0 auto;
-
 }
 .crud-container h2 {
   margin-bottom: 1.5rem;
@@ -245,19 +246,160 @@ button.secondary {
 .crud-table tr:nth-child(even) {
   background: #0e0e0e;
 }
-.crud-action {
+.btn-edit,
+.btn-delete {
   margin-right: 0.6rem;
   padding: 0.55rem 0.95rem;
-  background: #e33939;
   border-radius: 10px;
   color: #fff;
   cursor: pointer;
+  border: 1px solid transparent;
+  font-size: 1rem;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
-.crud-action.delete {
-  background: #7a0000;
+.btn-edit {
+  background: #ff4d4d;
+  border-color: #ff7f7f;
+}
+.btn-edit:hover {
+  background: #ff6a6a;
+  color: #000;
+  transform: translateY(-1px);
+}
+.btn-delete {
+  background: #8b0000;
+  border-color: #bf1f1f;
+}
+.btn-delete:hover {
+  background: #a50000;
+  color: #000;
+  transform: translateY(-1px);
+}
+.crud-form button:hover,
+button.secondary:hover,
+.manage-button:hover {
+  color: #000;
 }
 .crud-message {
   margin-top: 1rem;
+}
+
+/* Movies grid styles */
+.movies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.movie-item {
+  background: #151515;
+  border-radius: 10px;
+  overflow: hidden;
+  text-align: center;
+  color: white;
+  transition: transform 0.3s ease;
+  border: 1px solid #333;
+}
+
+.movie-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 20px rgba(255, 0, 0, 0.3);
+}
+
+.movie-poster {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  overflow: hidden;
+}
+
+.movie-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.movie-item:hover .movie-poster img {
+  transform: scale(1.06);
+}
+
+.movie-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1rem;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.movie-item:hover .movie-overlay {
+  opacity: 1;
+}
+
+.poster-title {
+  font-size: 1.3rem;
+  margin: 0 0 0.5rem;
+  color: #fff;
+  font-weight: 700;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.poster-description {
+  font-size: 0.95rem;
+  margin: 0;
+  color: #ddd;
+  line-height: 1.4;
+  max-height: 5.5rem;
+  overflow: hidden;
+}
+
+.manage-button {
+  display: inline-block;
+  margin-top: 0.8rem;
+  padding: 0.55rem 1rem;
+  background: #ff2b2b;
+  color: #fff;
+  border: 1px solid #ff2b2b;
+  border-radius: 999px;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.08rem;
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.manage-button:hover {
+  background: #ff7f7f;
+  color: #000;
+  transform: translateY(-1px);
+}
+
+.loading,
+.error,
+.no-data {
+  text-align: center;
+  padding: 20px;
+  color: white;
+  font-size: 1.2rem;
+}
+
+.error {
+  color: red;
+}
+
+.no-data {
+  color: lightgray;
   font-size: 1.1rem;
   color: #ccc;
 }
@@ -268,122 +410,109 @@ button.secondary {
   color: #ff7b7b;
 }
 
-
 /* Main Content */
 main {
-    min-height: 80vh;
-    padding: 40px 0;
+  min-height: 80vh;
+  padding: 40px 0;
 }
 
 .page-title {
-    font-size: 36px;
-    margin-bottom: 30px;
-    text-align: center;
-    color: var(--accent-color);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-.page-subtitle {
-    font-size: 16px;
-    color: #999;
-    text-align: center;
-    margin-bottom: 30px;
+  font-size: 36px;
+  margin-bottom: 30px;
+  text-align: center;
+  color: var(--accent-color);
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 /* Movies Grid */
 .movies-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 25px;
-    margin-top: 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
 }
 
 .movie-card {
-    background: linear-gradient(135deg, #333 0%, #1a1a1a 100%);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+  background: linear-gradient(135deg, #333 0%, #1a1a1a 100%);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .movie-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 10px 30px rgba(229, 9, 20, 0.3);
-    border-color: var(--primary-color);
+  transform: translateY(-8px);
+  box-shadow: 0 10px 30px rgba(229, 9, 20, 0.3);
+  border-color: var(--primary-color);
 }
 
 .movie-poster {
-    width: 100%;
-    height: 350px;
-    background-color: #444;
-    overflow: hidden;
+  width: 100%;
+  height: 350px;
+  background-color: #444;
+  overflow: hidden;
 }
 
 .movie-poster img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
 .movie-card:hover .movie-poster img {
-    transform: scale(1.05);
+  transform: scale(1.05);
 }
 
 .movie-info {
-    padding: 20px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .movie-title {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 8px;
-    color: var(--accent-color);
-    line-height: 1.3;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: var(--accent-color);
+  line-height: 1.3;
 }
 
 .movie-meta {
-    font-size: 13px;
-    color: #999;
-    margin-bottom: 12px;
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 12px;
 }
 
 .movie-category {
-    display: inline-block;
-    background-color: var(--primary-color);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    margin-bottom: 12px;
+  display: inline-block;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  margin-bottom: 12px;
 }
 
 .movie-description {
-    font-size: 14px;
-    color: #ccc;
-    margin-bottom: 15px;
-    flex-grow: 1;
-    line-height: 1.5;
+  font-size: 14px;
+  color: #ccc;
+  margin-bottom: 15px;
+  flex-grow: 1;
+  line-height: 1.5;
 }
 
 .movie-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: auto;
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
 }
-
-
-
-
-
 
 /*footer style*/
 .site-footer {
@@ -394,7 +523,7 @@ main {
   font-size: 1.2em;
 }
 
-.site-footer h4{
+.site-footer h4 {
   color: #fff;
 }
 
@@ -429,7 +558,7 @@ main {
   vertical-align: middle;
 }
 
-.footer-section p{
+.footer-section p {
   color: #fff;
 }
 
@@ -453,5 +582,3 @@ main {
     display: none;
   }
 }
-
-
