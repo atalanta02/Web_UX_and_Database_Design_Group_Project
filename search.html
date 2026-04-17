@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="shortcut icon" href="images\logo.png" type="image/x-icon" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CineTV</title>
+    <link rel="stylesheet" href="styles.css" />
+    
+    <!-- Supabase JS -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+      defer
+    ></script>
+
+    <!-- Page script -->
+    <script defer>
+      // 1) Connect to Supabase
+      const SUPABASE_URL = 'https://jtqkbhgucspgklccgawd.supabase.co';
+      const SUPABASE_ANON_KEY =
+       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0cWtiaGd1Y3NwZ2tsY2NnYXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMjE4NTIsImV4cCI6MjA3NTU5Nzg1Mn0.fBiGoem1tfS2RInqdBv9EekdIdw5ydQIPUl_JewMJ_M';
+
+      let supabaseClient;
+      //edit movie initalised
+      let editingMovie = null;
+
+      window.addEventListener("DOMContentLoaded", async () => {
+        supabaseClient = window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_ANON_KEY,
+        );
+        await loadMovies();
+
+        // Form listeners
+        document.getElementById("create-movie-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          addMovie();
+        });
+        document.getElementById("update-movie-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          addMovie();
+        });
+        document.getElementById("cancel-edit").addEventListener("click", () => {
+          editingMovie = null;
+          document.getElementById("update-movie-form").classList.add("hidden");
+          document.getElementById("create-movie-form").classList.remove("hidden");
+        });
+      });
+
+      // 2) Fetch movies from Supabase and display in table
+      async function loadMovies() {
+        const tableBody = document.getElementById("movie-table-body");
+        const statusEl = document.getElementById("crud-message");
+
+        tableBody.innerHTML = '<tr><td colspan="6">Loading data…</td></tr>';
+
+        const { data, error } = await supabaseClient
+          .from("movie")
+          .select("id, title, description, image_url, type_id")
+          .order("id", { ascending: true });
+
+        if (error) {
+          tableBody.innerHTML =
+            '<tr><td colspan="6">Error loading data</td></tr>';
+          statusEl.textContent = error.message;
+          return;
+        }
+
+        if (!data || data.length === 0) {
+          tableBody.innerHTML =
+            '<tr><td colspan="6">No movies found</td></tr>';
+          statusEl.textContent = "Tip: add movies in Supabase Table Editor.";
+          return;
+        }
+
+        tableBody.innerHTML = "";
+        data.forEach((movie) => {
+          // for each movie, create a table row
+          const row = document.createElement("tr");
+          row.id = `movie-${movie.id}`;
+
+          row.innerHTML = `
+            <td>${movie.id}</td>
+            <td><img src="${movie.image_url || ''}" alt="${movie.title}" width="50" height="50"></td>
+            <td>${movie.title ?? ""}</td>
+            <td>${movie.type_id == 1 ? 'Movie' : 'TV Show'}</td>
+            <td>
+              <button class="btn-edit" onclick="editMovie('${movie.id}', '${movie.title ?? ""}', '${movie.description ?? ""}', '${movie.image_url ?? ""}', '${movie.type_id ?? ""}')">Edit</button>
+              <button class="btn-delete" onclick="deleteMovie(${movie.id}, this)">Delete</button>
+            </td>
+          `;
+
+          tableBody.appendChild(row);
+        });
+
+        const hash = window.location.hash;
+        if (hash) {
+          const targetRow = document.querySelector(hash);
+          if (targetRow) {
+            targetRow.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }
+
+        statusEl.textContent = "";
+      }
+      
+ let currentType = 'all';
+
+ function setType(type) {
+     currentType = type;
+     applyFilters();
+}
+
+async function applyFilters() {
+    const search = document.getElementById("searchInput").value;
+    const tableBody = document.getElementById("movie-table-body");
+    const statusEl = document.getElementById("crud-message");
+
+    tableBody.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
+
+    let query = supabaseClient
+        .from("movie")
+        .select("id, title, description, image_url, type_id");
+
+    // Filter by type
+    if (currentType !== "all") {
+        const typeValue = currentType === "movie" ? 1 : 2; 
+        query = query.eq("type_id", typeValue);
+    }
+
+    // Search filter
+    if (search) {
+        query = query.ilike("title", `%${search}%`);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+        console.error(error);
+        tableBody.innerHTML =
+            '<tr><td colspan="5">Error loading data</td></tr>';
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        tableBody.innerHTML =
+            '<tr><td colspan="5">No movies found</td></tr>';
+        return;
+    }
+
+    tableBody.innerHTML = "";
+
+    data.forEach((movie) => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${movie.id}</td>
+            <td>
+                <img src="${movie.image_url || ''}" width="50" height="50">
+            </td>
+            <td>${movie.title ?? ""}</td>
+            <td>${movie.type_id == 1 ? 'Movie' : 'TV Show'}</td>
+            <td>
+                <button class="btn-edit"
+                    onclick="editMovie('${movie.id}', '${movie.title ?? ""}', '${movie.description ?? ""}', '${movie.image_url ?? ""}', '${movie.type_id ?? ""}')">
+                    Edit
+                </button>
+                <button class="btn-delete"
+                    onclick="deleteMovie(${movie.id}, this)">
+                    Delete
+                </button>
+            </td>
+        `;
+
+        tableBody.appendChild(row);
+    });
+
+    statusEl.textContent = "";
+}
+
+// load everything on start
+applyFilters();
+</script>
+  </head>
+  <body>
+    <!-- header -->
+    <!-- logo -->
+    <header class="header">
+      <div class="logo">
+        <p>CineTV</p>
+      </div>
+      <!-- logo ends -->
+
+      <!-- navbar -->
+      <nav class="navbar">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="movies.html">Movies</a></li>
+          <li><a href="tv_shows.html">TV Shows</a></li>
+          <li><a class="active" href="./profile.html">Search</a></li>
+          <li><a href="profile.html">Profile</a></li>
+          <li><a href="about_us.html">About Us</a></li>
+        </ul>
+      </nav>
+      <!-- navbar ends -->
+
+      <!-- icons -->
+      <div class="icons">
+        <i class="fas fa-search" id="search-icon"></i>
+      </div>
+      <!-- icon ends -->
+    </header>
+    <!-- header ends-->
+
+    <h1 class="page-title">Search</h1>
+     <div class="table-wrapper">
+          <h3>Media list</h3>
+          <button class="btn-delete" onclick="setType('all')">All</button>
+          <button class="btn-delete" onclick="setType('movie')">Movies</button>
+          <button class="btn-delete" onclick="setType('show')">Shows</button>
+          <input type="text" id="searchInput" placeholder="Search..." oninput="applyFilters()">
+
+          <table class="crud-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Image</th>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="movie-table-body"></tbody>
+          </table>
+          <p id="crud-message" class="crud-message"></p>
+        </div>
+      </div>
+    </section>
+    <!-- crud section end-->
+    <!-- footer section -->
+    <footer class="site-footer">
+      <div class="footer-container">
+        <div class="footer-section social">
+          <h4>Follow Us</h4>
+          <a href="https://instagram.com" target="_blank">
+            <img
+              src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg"
+              alt="Instagram"
+            />
+            Instagram
+          </a>
+          <a href="https://facebook.com" target="_blank">
+            <img
+              src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg"
+              alt="Facebook"
+            />
+            Facebook
+          </a>
+        </div>
+        <div class="footer-section contact">
+          <h4>Contact</h4>
+          <p>
+            Email:
+            <a href="mailto:ourcine@cinetv.ie">ourcine@cinetv.ie</a>
+          </p>
+          <p>Phone: <a href="tel:+00680980">+00 680 980</a></p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 CineTV</p>
+      </div>
+    </footer>
+    <!-- footer section end-->
+  </body>
+</html>
