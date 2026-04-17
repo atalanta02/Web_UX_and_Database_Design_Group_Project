@@ -477,8 +477,16 @@ font-size: 1.3rem;
   }
 }
 
+.btn-filter  {
+  background: var(--primary-color);
+  border: 2px solid #bf1f1f;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
 #searchInput {
-  background: #8b0000;
+  background: var(--primary-color);
   border: 2px solid #bf1f1f;
   color: white;
   padding: 8px 12px;
