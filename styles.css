@@ -466,10 +466,20 @@ font-size: 1.3rem;
 .footer-bottom p {
   text-align: center;
   font-weight: bold;
-  color: var(--text-main);
+  color: #fff;
 }
 
+/*smaller screen*/
+@media only screen and (max-width: 940px) {
+  .menu-container {
+    display: none;
+  }
+}
 
-
-
-
+#searchInput {
+  background: #8b0000;
+  border: 2px solid #bf1f1f;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
