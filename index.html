@@ -13,7 +13,7 @@
     <title>CineTV</title>
     <link rel="stylesheet" href="styles.css" />
 
-     <!-- Supabase JS -->
+    <!-- Supabase JS -->
     <script
       src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
       defer
@@ -22,12 +22,11 @@
     <!-- Page script -->
     <script defer>
       // 1) Connect to Supabase
-      const SUPABASE_URL = 'https://jtqkbhgucspgklccgawd.supabase.co';
+      const SUPABASE_URL = "https://jtqkbhgucspgklccgawd.supabase.co";
       const SUPABASE_ANON_KEY =
-       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0cWtiaGd1Y3NwZ2tsY2NnYXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMjE4NTIsImV4cCI6MjA3NTU5Nzg1Mn0.fBiGoem1tfS2RInqdBv9EekdIdw5ydQIPUl_JewMJ_M';
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0cWtiaGd1Y3NwZ2tsY2NnYXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMjE4NTIsImV4cCI6MjA3NTU5Nzg1Mn0.fBiGoem1tfS2RInqdBv9EekdIdw5ydQIPUl_JewMJ_M";
 
       let supabaseClient;
-      //edit movie initalised
       let editingMovie = null;
 
       window.addEventListener("DOMContentLoaded", async () => {
@@ -35,25 +34,37 @@
           SUPABASE_URL,
           SUPABASE_ANON_KEY,
         );
+
         await loadMovies();
 
-        // Form listeners
-        document.getElementById("create-movie-form").addEventListener("submit", (e) => {
-          e.preventDefault();
-          addMovie();
-        });
-        document.getElementById("update-movie-form").addEventListener("submit", (e) => {
-          e.preventDefault();
-          addMovie();
-        });
+        document
+          .getElementById("create-movie-form")
+          .addEventListener("submit", (e) => {
+            e.preventDefault();
+            addMovie();
+          });
+
+        document
+          .getElementById("update-movie-form")
+          .addEventListener("submit", (e) => {
+            e.preventDefault();
+            addMovie();
+          });
+
         document.getElementById("cancel-edit").addEventListener("click", () => {
           editingMovie = null;
+
           document.getElementById("update-movie-form").classList.add("hidden");
-          document.getElementById("create-movie-form").classList.remove("hidden");
+          document
+            .getElementById("create-movie-form")
+            .classList.remove("hidden");
+
+          // ✅ clear message
+          document.getElementById("crud-message").textContent = "";
         });
       });
 
-      // 2) Fetch movies from Supabase and display in table
+      // LOAD MOVIES
       async function loadMovies() {
         const tableBody = document.getElementById("movie-table-body");
         const statusEl = document.getElementById("crud-message");
@@ -73,44 +84,61 @@
         }
 
         if (!data || data.length === 0) {
-          tableBody.innerHTML =
-            '<tr><td colspan="6">No movies found</td></tr>';
+          tableBody.innerHTML = '<tr><td colspan="6">No movies found</td></tr>';
           statusEl.textContent = "Tip: add movies in Supabase Table Editor.";
           return;
         }
 
         tableBody.innerHTML = "";
+
         data.forEach((movie) => {
-          // for each movie, create a table row
           const row = document.createElement("tr");
           row.id = `movie-${movie.id}`;
 
+          // create cells
           row.innerHTML = `
-            <td>${movie.id}</td>
-            <td><img src="${movie.image_url || ''}" alt="${movie.title}" width="50" height="50"></td>
-            <td>${movie.title ?? ""}</td>
-            <td>${movie.type_id == 1 ? 'Movie' : 'TV Show'}</td>
-            <td>
-              <button class="btn-edit" onclick="editMovie('${movie.id}', '${movie.title ?? ""}', '${movie.description ?? ""}', '${movie.image_url ?? ""}', '${movie.type_id ?? ""}')">Edit</button>
-              <button class="btn-delete" onclick="deleteMovie(${movie.id}, this)">Delete</button>
-            </td>
-          `;
+          <td>${movie.id}</td>
+          <td><img src="${movie.image_url || ""}" width="50" height="50"></td>
+          <td>${movie.title ?? ""}</td>
+          <td>${movie.type_id == 1 ? "Movie" : "TV Show"}</td>
+        `;
 
+          // ACTION BUTTONS (✅ FIXED)
+          const actionsTd = document.createElement("td");
+
+          const editBtn = document.createElement("button");
+          editBtn.textContent = "Edit";
+          editBtn.classList.add("btn-edit");
+
+          editBtn.addEventListener("click", () => {
+            editMovie(
+              movie.id,
+              movie.title || "",
+              movie.description || "",
+              movie.image_url || "",
+              movie.type_id || "",
+            );
+          });
+
+          const deleteBtn = document.createElement("button");
+          deleteBtn.textContent = "Delete";
+          deleteBtn.classList.add("btn-delete");
+
+          deleteBtn.addEventListener("click", () => {
+            deleteMovie(movie.id, deleteBtn);
+          });
+
+          actionsTd.appendChild(editBtn);
+          actionsTd.appendChild(deleteBtn);
+
+          row.appendChild(actionsTd);
           tableBody.appendChild(row);
         });
-
-        const hash = window.location.hash;
-        if (hash) {
-          const targetRow = document.querySelector(hash);
-          if (targetRow) {
-            targetRow.scrollIntoView({ behavior: "smooth", block: "center" });
-          }
-        }
 
         statusEl.textContent = "";
       }
 
-      // 3) Delete movie (Delete the info from the database)
+      // DELETE MOVIE
       async function deleteMovie(movieId, btnEl) {
         const statusEl = document.getElementById("crud-message");
 
@@ -120,28 +148,22 @@
         statusEl.textContent = "Deleting...";
 
         try {
-          //  Ask Supabase to return the deleted row
-          // This code removes a specific movie from the database using their ID and confirms that the row was deleted.
           const { data, error } = await supabaseClient
             .from("movie")
             .delete()
-            .eq("id", movieId) //
-            .select("id"); // very important to select something to get the deleted row back
+            .eq("id", movieId)
+            .select("id");
 
           if (error) {
-            console.error("Delete error:", error);
-            statusEl.textContent = "Delete failed: " + (error.message || "");
+            statusEl.textContent = "Delete failed: " + error.message;
             return;
           }
 
-          // If Supabase deleted 0 rows, do NOT remove from UI
           if (!data || data.length === 0) {
-            statusEl.textContent =
-              "Not deleted in Supabase (0 rows). Check RLS policy / ID type.";
+            statusEl.textContent = "Not deleted in Supabase.";
             return;
           }
 
-          // Remove the deleted movie's row from the table, shows a confirmation message, and re-enables the button.
           const rowEl = btnEl.closest("tr");
           if (rowEl) rowEl.remove();
 
@@ -152,11 +174,12 @@
         }
       }
 
-      //4) Add or update movie
+      // ADD / UPDATE MOVIE
       async function addMovie() {
         const statusEl = document.getElementById("crud-message");
 
         let titleInput, descriptionInput, imageUrlInput, typeInput;
+
         if (editingMovie) {
           titleInput = document.getElementById("edit-title");
           descriptionInput = document.getElementById("edit-description");
@@ -166,13 +189,15 @@
           titleInput = document.getElementById("create-title");
           descriptionInput = document.getElementById("description");
           imageUrlInput = document.getElementById("create-image-url");
-          typeInput = document.querySelector('input[name="create-type"]:checked');
+          typeInput = document.querySelector(
+            'input[name="create-type"]:checked',
+          );
         }
 
         const title = titleInput.value.trim();
         const description = descriptionInput.value.trim();
         const image_url = imageUrlInput.value.trim();
-        const type = typeInput ? typeInput.value : '';
+        const type = typeInput ? typeInput.value : "";
 
         if (!title || !description || !type) {
           statusEl.textContent = "Please enter title, description, and type.";
@@ -181,31 +206,37 @@
 
         statusEl.textContent = "Saving...";
 
-        //for new or update movie
         let result;
+
         if (editingMovie) {
-          //update
           result = await supabaseClient
             .from("movie")
-            .update({ title, description, image_url, type_id: parseInt(type) })
+            .update({
+              title,
+              description,
+              image_url,
+              type_id: parseInt(type),
+            })
             .eq("id", editingMovie);
         } else {
-          //insert
-          const { data: existingIds, error: idError } = await supabaseClient
+          const { data: existingIds } = await supabaseClient
             .from("movie")
             .select("id")
             .order("id", { ascending: false })
             .limit(1);
 
-          if (idError) {
-            statusEl.textContent = "Save failed: " + idError.message;
-            return;
-          }
+          const nextId =
+            existingIds && existingIds.length > 0 ? existingIds[0].id + 1 : 1;
 
-          const nextId = existingIds && existingIds.length > 0 ? existingIds[0].id + 1 : 1;
-          result = await supabaseClient
-            .from("movie")
-            .insert([{ id: nextId, title, description, image_url, type_id: parseInt(type) }]);
+          result = await supabaseClient.from("movie").insert([
+            {
+              id: nextId,
+              title,
+              description,
+              image_url,
+              type_id: parseInt(type),
+            },
+          ]);
         }
 
         if (result.error) {
@@ -213,46 +244,44 @@
           return;
         }
 
-        //reset
+        // RESET FORM
         editingMovie = null;
+
         titleInput.value = "";
         descriptionInput.value = "";
         imageUrlInput.value = "";
         if (typeInput) typeInput.checked = false;
 
-        if (!document.getElementById("update-movie-form").classList.contains("hidden")) {
-          document.getElementById("update-movie-form").classList.add("hidden");
-          document.getElementById("create-movie-form").classList.remove("hidden");
-        }
+        document.getElementById("update-movie-form").classList.add("hidden");
+        document.getElementById("create-movie-form").classList.remove("hidden");
 
         statusEl.textContent = "Saved ✔";
         setTimeout(() => (statusEl.textContent = ""), 1200);
+
         await loadMovies();
       }
 
-      //5) Edit movie
+      // EDIT MOVIE
       function editMovie(movieId, title, description, image_url, type_id) {
         editingMovie = movieId;
 
-        //Fill the form inputs
         document.getElementById("edit-title").value = title;
         document.getElementById("edit-description").value = description;
         document.getElementById("edit-image-url").value = image_url;
+
         if (type_id == 1) {
           document.getElementById("edit-movie").checked = true;
         } else {
           document.getElementById("edit-tvshow").checked = true;
         }
 
-        // Show update form, hide create form
         document.getElementById("update-movie-form").classList.remove("hidden");
         document.getElementById("create-movie-form").classList.add("hidden");
 
-        //visual feedback
-        document.getElementById("crud-message").textContent = "Editing movie...";
+        document.getElementById("crud-message").textContent =
+          "Editing movie...";
       }
     </script>
-
   </head>
   <body>
     <!-- header -->
@@ -282,37 +311,67 @@
       <!-- icon ends -->
     </header>
     <!-- header ends-->
-     
+
     <!-- main section-->
     <main id="main_section">
       <h1 class="page-title">Welcome to CineTV</h1>
       <div id="main-feature">
         <span class="featured-title">Dune</span>
-        <p class="featured-desc">Paul Atreides unites with the Fremen while on a warpath of revenge against the conspirators who destroyed his family. Facing a choice between the love of his life and the fate of the universe, he endeavors to prevent a terrible future.</p>
+        <p class="featured-desc">
+          Paul Atreides unites with the Fremen while on a warpath of revenge
+          against the conspirators who destroyed his family. Facing a choice
+          between the love of his life and the fate of the universe, he
+          endeavors to prevent a terrible future.
+        </p>
       </div>
- </main>
-<!-- main section end-->
-<!-- crud section -->
-<section class="crud-section">
+    </main>
+    <!-- main section end-->
+    <!-- crud section -->
+    <section class="crud-section">
       <div class="crud-container">
         <h2>Manage Movies</h2>
         <div class="crud-grid">
           <form id="create-movie-form" class="crud-form">
             <h3>Add new movie</h3>
             <label for="create-title">Title</label>
-            <input id="create-title" type="text" placeholder="Enter movie title" required />
+            <input
+              id="create-title"
+              type="text"
+              placeholder="Enter movie title"
+              required
+            />
             <label for="create-type">Type</label>
             <div class="radio-group">
-              <input type="radio" id="create-movie" name="create-type" value="1" required>
+              <input
+                type="radio"
+                id="create-movie"
+                name="create-type"
+                value="1"
+                required
+              />
               <label for="create-movie">Movie</label>
-              <input type="radio" id="create-tvshow" name="create-type" value="2" required>
+              <input
+                type="radio"
+                id="create-tvshow"
+                name="create-type"
+                value="2"
+                required
+              />
               <label for="create-tvshow">TV Show</label>
             </div>
-            
+
             <label for="description">Description</label>
-              <textarea id="description" name="description" placeholder="Enter movie synopsis or description"></textarea>
+            <textarea
+              id="description"
+              name="description"
+              placeholder="Enter movie synopsis or description"
+            ></textarea>
             <label for="create-image-url">Image URL</label>
-              <input id="create-image-url" type="url" placeholder="https://example.com/image.jpg" />
+            <input
+              id="create-image-url"
+              type="url"
+              placeholder="https://example.com/image.jpg"
+            />
             <button type="submit">Add movie</button>
           </form>
 
@@ -320,21 +379,48 @@
             <h3>Edit movie</h3>
             <input id="edit-id" type="hidden" />
             <label for="edit-title">Title</label>
-            <input id="edit-title" type="text" placeholder="Update movie title" required />
+            <input
+              id="edit-title"
+              type="text"
+              placeholder="Update movie title"
+              required
+            />
             <label for="edit-type">Type</label>
             <div class="radio-group">
-              <input type="radio" id="edit-movie" name="edit-type" value="1" required>
+              <input
+                type="radio"
+                id="edit-movie"
+                name="edit-type"
+                value="1"
+                required
+              />
               <label for="edit-movie">Movie</label>
-              <input type="radio" id="edit-tvshow" name="edit-type" value="2" required>
+              <input
+                type="radio"
+                id="edit-tvshow"
+                name="edit-type"
+                value="2"
+                required
+              />
               <label for="edit-tvshow">TV Show</label>
             </div>
             <label for="edit-description">Description</label>
-            <textarea id="edit-description" name="edit-description" placeholder="Enter movie synopsis or description"></textarea>
+            <textarea
+              id="edit-description"
+              name="edit-description"
+              placeholder="Enter movie synopsis or description"
+            ></textarea>
             <label for="edit-image-url">Image URL</label>
-            <input id="edit-image-url" type="url" placeholder="https://example.com/image.jpg" />
+            <input
+              id="edit-image-url"
+              type="url"
+              placeholder="https://example.com/image.jpg"
+            />
             <div class="form-actions">
               <button type="submit">Save changes</button>
-              <button type="button" id="cancel-edit" class="secondary">Cancel</button>
+              <button type="button" id="cancel-edit" class="secondary">
+                Cancel
+              </button>
             </div>
           </form>
         </div>
@@ -359,7 +445,6 @@
     </section>
     <!-- crud section end-->
 
-  
     <!-- footer section -->
     <footer class="site-footer">
       <div class="footer-container">
@@ -395,6 +480,5 @@
     </footer>
     <!-- footer section end-->
     <!-- script-->
-
   </body>
 </html>

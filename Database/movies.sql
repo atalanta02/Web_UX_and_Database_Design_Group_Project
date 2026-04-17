@@ -12,7 +12,7 @@ Create table UserProfile(
 
 Create table Type(
   id integer primary key,
-  category varchar(100)
+  category varchar(100) CHECK (CATEGORY in('Movie', 'TV Show'))
 );
 
 Create table Movie(
@@ -21,7 +21,7 @@ Create table Movie(
   type_id integer,
   description TEXT,
   image_url varchar(255),
-  foreign key (type_id)references type(id)
+  foreign key (type_id)references type(id) ON DELETE CASCADE
 );
 
 /* insert into tables.  */
@@ -40,4 +40,3 @@ Insert into Movie values
 
 
 
-i 
