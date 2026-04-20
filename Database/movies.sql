@@ -1,42 +1,46 @@
-/* Drop tables.  */
-DROP table if exists UserProfile;
-DROP table if exists Movie;
-DROP table if exists Type;
+DROP TABLE IF EXISTS movie;
+DROP TABLE IF EXISTS type;
+DROP TABLE IF EXISTS userprofile;
 
-/* Create tables.  */
-Create table UserProfile(
-  id integer primary key,
-  name varchar(100),
-  email varchar(100)
+CREATE TABLE userprofile (
+  id SERIAL PRIMARY KEY,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  e_password VARCHAR(100) NOT NULL,
+  CHECK (length(e_password) >= 8),
+  CHECK (email ~ '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
 );
 
-Create table Type(
-  id integer primary key,
-  category varchar(100) CHECK (CATEGORY in('Movie', 'TV Show'))
+CREATE TABLE type (
+  id SERIAL PRIMARY KEY,
+  category VARCHAR(100) NOT NULL
+    CHECK (category IN ('Movie', 'TV Show'))
 );
 
-Create table Movie(
-  id integer primary key,
-  title varchar(100),
-  type_id integer,
+CREATE TABLE movie (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(100) NOT NULL,
+  type_id INTEGER NOT NULL,
   description TEXT,
-  image_url varchar(255),
-  foreign key (type_id)references type(id) ON DELETE CASCADE
+  image_url VARCHAR(255),
+  FOREIGN KEY (type_id) REFERENCES type(id) ON DELETE CASCADE
 );
 
-/* insert into tables.  */
-Insert into UserProfile  values
-    (1, 'James Korgan', 'James@example.com'),
-    (2, 'Peter Louis ', 'Peter@example.com');
+/* Insert data */
+INSERT INTO userprofile (email, e_password) VALUES
+  ('James@example.com', 'RWEWdhjgwd'),
+  ('Peter@example.com', 'WQWuwehgd');
 
-Insert into Type values(1, 'Movie');
-Insert into Type values(2, 'TV Show');
+  
+INSERT INTO type (category) VALUES
+  ('Movie'),
+  ('TV Show');
 
-Insert into Movie values
-    (1,'Something Bad Is Going To Happen',2,'A certain atmosphere of horror is felt the week before the celebration of an unfortunate wedding.','https://images.justwatch.com/poster/341255798/s718/something-very-bad-is-going-to-happen.jpg'),
-    (2,'Scream 7',1,'When a new Ghostface killer emerges in the town where Sidney Prescott
-          has built a new life, her darkest fears are realized as her daughter
-          becomes the next target.','https://cdn.theplaylist.net/wp-content/uploads/2026/02/07165601/Scream-7.jpg');
-
+INSERT INTO movie (title, type_id, description, image_url) VALUES
+  ('Something Bad Is Going To Happen', 2,
+   'A certain atmosphere of horror is felt the week before the celebration of an unfortunate wedding.',
+   'https://images.justwatch.com/poster/341255798/s718/something-very-bad-is-going-to-happen.jpg'),
+  ('Scream 7', 1,
+   'When a new Ghostface killer emerges in the town where Sidney Prescott has built a new life, her darkest fears are realized as her daughter becomes the next target.',
+   'https://cdn.theplaylist.net/wp-content/uploads/2026/02/07165601/Scream-7.jpg');
 
 

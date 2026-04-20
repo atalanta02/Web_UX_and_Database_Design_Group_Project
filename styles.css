@@ -66,23 +66,6 @@ header .navbar a:hover {
   padding: 0.6rem;
 }
 
-/* search icon*/
-header .icons i {
-  cursor: pointer;
-  margin-left: 0.5rem;
-  height: 4.5rem;
-  line-height: 4.5rem;
-  width: 4.5rem;
-  text-align: center;
-  font-size: 1, 7rem;
-  color: #fff;
-  border-radius: 50%;
-}
-
-header .icons i:hover {
-  background: black;
-  transform: rotate(360deg);
-}
 
 /* == MAIN CONTENT == */
 main {
@@ -492,4 +475,100 @@ font-size: 1.3rem;
   color: white;
   padding: 8px 12px;
   border-radius: 6px;
+}
+
+
+/* PROFILE PAGE */
+
+.profile-container {
+  padding: 3rem 1.5rem 4rem;
+  min-height: calc(100vh - 80px);
+}
+
+.page-title {
+  text-align: center;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.profile-card {
+  background: #0d0d0d;
+  border: 1px solid red;
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 500px;
+  margin: 2rem auto;
+  text-align: center;
+}
+
+.profile-card h2 {
+  margin-bottom: 1rem;
+  font-size: 2rem;
+}
+
+/* FORM */
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: white;
+  font-weight: bold;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid red;
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: white;
+  outline: none;
+}
+
+/* BUTTONS */
+.profile-button {
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 0.8rem 1.4rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.profile-button:hover {
+  background: #cc0000;
+}
+
+.logout-button {
+  background: #333;
+}
+
+.logout-button:hover {
+  background: #555;
+}
+
+/* USER INFO */
+.user-email {
+  margin: 1rem 0 1.5rem;
+  color: white;
+  word-break: break-word;
+}
+
+/* ALERTS */
+#alerts {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+#alerts .success {
+  color: #00ff99;
+}
+
+#alerts .error {
+  color: #ff4d4d;
 }
