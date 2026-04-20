@@ -389,6 +389,7 @@ button.secondary:hover,
 
 .movie-item:hover .movie-overlay {
   opacity: 1;
+  cursor: pointer;
 }
 
 /* Movie info */
