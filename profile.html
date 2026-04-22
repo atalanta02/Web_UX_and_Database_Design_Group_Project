@@ -15,180 +15,235 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CineTV - Profile</title>
 
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <!-- == SUPABASE == -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <script defer>
-    const SUPABASE_URL = 'https://jtqkbhgucspgklccgawd.supabase.co';
-    const SUPABASE_ANON_KEY =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0cWtiaGd1Y3NwZ2tsY2NnYXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMjE4NTIsImV4cCI6MjA3NTU5Nzg1Mn0.fBiGoem1tfS2RInqdBv9EekdIdw5ydQIPUl_JewMJ_M';
+  <!-- ================= JS IN HEAD ================= -->
+  <script>
+    const SUPABASE_URL = "https://jtqkbhgucspgklccgawd.supabase.co";
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0cWtiaGd1Y3NwZ2tsY2NnYXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMjE4NTIsImV4cCI6MjA3NTU5Nzg1Mn0.fBiGoem1tfS2RInqdBv9EekdIdw5ydQIPUl_JewMJ_M';
 
-    let supabaseClient;
 
-    window.addEventListener("DOMContentLoaded", async () => {
-      supabaseClient = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-      );
+    document.addEventListener("DOMContentLoaded", async () => {
 
-      document
-        .getElementById("login-form")
-        .addEventListener("submit", handleLogin);
+  console.log("SCRIPT LOADED");
 
-      document
-        .getElementById("logout-button")
-        .addEventListener("click", handleLogout);
+  if (!window.supabase) {
+    console.error("Supabase not loaded");
+    return;
+  }
 
-      await checkUser();
+  const supabase = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
 
-      supabaseClient.auth.onAuthStateChange(() => {
-        checkUser();
-      });
+  // ===== ELEMENTS =====
+  const loginBtn = document.getElementById("loginBtn");
+  const signupBtn = document.getElementById("signupBtn");
+
+  const loginSection = document.getElementById("loginSection");
+  const signupSection = document.getElementById("signupSection");
+  const profileSection = document.getElementById("profileSection");
+
+  const userEmail = document.getElementById("userEmail");
+
+  // ===== SAFETY CHECK =====
+  if (!loginBtn || !signupBtn || !loginSection || !signupSection) {
+    console.error("Missing HTML elements");
+    return;
+  }
+
+  // ===== TOGGLE FUNCTIONS =====
+  function showLogin() {
+    loginSection.style.display = "block";
+    signupSection.style.display = "none";
+
+    loginBtn.classList.add("active");
+    signupBtn.classList.remove("active");
+  }
+
+  function showSignup() {
+    loginSection.style.display = "none";
+    signupSection.style.display = "block";
+
+    signupBtn.classList.add("active");
+    loginBtn.classList.remove("active");
+  }
+
+  loginBtn.addEventListener("click", showLogin);
+  signupBtn.addEventListener("click", showSignup);
+
+  // default state
+  showLogin();
+
+  // ===== CHECK USER =====
+  async function checkUser() {
+    const { data } = await supabase.auth.getUser();
+
+    if (data.user) {
+      profileSection.style.display = "block";
+      loginSection.style.display = "none";
+      signupSection.style.display = "none";
+
+      userEmail.textContent = data.user.email;
+    } else {
+      profileSection.style.display = "none";
+      showLogin();
+    }
+  }
+
+  checkUser();
+
+  // ===== GUARDS =====
+  let isSigningUp = false;
+  let isLoggingIn = false;
+
+  // ===== SIGNUP =====
+  document.getElementById("signupForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    console.log("SIGNUP CLICK");
+
+    if (isSigningUp) return;
+    isSigningUp = true;
+
+    const btn = e.target.querySelector("button");
+    btn.disabled = true;
+
+    const email = document.getElementById("signupEmail").value;
+    const password = document.getElementById("signupPassword").value;
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password
     });
 
-    async function checkUser() {
-      const { data, error } = await supabaseClient.auth.getUser();
+    btn.disabled = false;
+    isSigningUp = false;
 
-      const loginSection = document.getElementById("login-section");
-      const profileSection = document.getElementById("profile-section");
-      const userEmail = document.getElementById("user-email");
-
-      if (error) {
-        showMessage(error.message, "error");
-        return;
-      }
-
-      if (data.user) {
-        loginSection.style.display = "none";
-        profileSection.style.display = "block";
-        userEmail.textContent = data.user.email;
-      } else {
-        loginSection.style.display = "block";
-        profileSection.style.display = "none";
-      }
+    if (error) {
+      console.error(error.message);
+      return showMessage(error.message, "error");
     }
 
-    async function handleLogin(e) {
-      e.preventDefault();
+    showMessage("Signup successful! Now log in.", "success");
+    showLogin();
+  });
 
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+  // ===== LOGIN =====
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-      const { error } = await supabaseClient.auth.signInWithPassword({
-        email,
-        password,
-      });
+    console.log("LOGIN CLICK");
 
-      if (error) {
-        showMessage(error.message, "error");
-        return;
-      }
+    if (isLoggingIn) return;
+    isLoggingIn = true;
 
-      showMessage("Login successful!", "success");
+    const btn = e.target.querySelector("button");
+    btn.disabled = true;
+
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    btn.disabled = false;
+    isLoggingIn = false;
+
+    if (error) {
+      console.error(error.message);
+      return showMessage(error.message, "error");
     }
 
-    async function handleLogout() {
-      const { error } = await supabaseClient.auth.signOut();
+    checkUser();
+  });
 
-      if (error) {
-        showMessage(error.message, "error");
-        return;
-      }
+  // ===== LOGOUT =====
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await supabase.auth.signOut();
+    checkUser();
+  });
 
-      showMessage("Logged out successfully", "success");
-    }
+});
 
-    function showMessage(message, type) {
-      const alerts = document.getElementById("alerts");
-      alerts.innerHTML = `<div class="${type}">${message}</div>`;
-    }
-
-    function toggleMenu() {
-      const navbar = document.querySelector('.navbar');
-      const header = document.querySelector('.header');
-
-      navbar.classList.toggle('active');
-      header.classList.toggle('menu-open');
-    }
+// ===== ALERTS =====
+function showMessage(msg, type) {
+  document.getElementById("alerts").innerHTML =
+    `<div class="${type}">${msg}</div>`;
+}
   </script>
 </head>
 
-  <body>
-    <!-- header -->
-    <!-- logo -->
-    <header class="header">
-      <div class="logo">
-        <p>CineTV</p>
-      </div>
-      <!-- logo ends -->
+<body>
 
-      <!-- navbar -->
-      <nav class="navbar">
-        <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="movies.html">Movies</a></li>
-          <li><a class="tv_shows.html">TV Shows</a></li>
-          <li><a href="tv_shows.html">TV Shows</a></li>
-          <li><a class="active" href="./profile.html">Profile</a></li>
-          <li><a href="about_us.html">About Us</a></li>
-        </ul>
-      </nav>
-      <!-- navbar ends -->
-       <div class="menu-toggle" onclick="toggleMenu()">☰</div>
-    </header>
-    <!-- header ends-->
+<header class="header">
+  <div class="logo"><p>CineTV</p></div>
 
-  <!-- MAIN -->
-  <main>
-    <div class="container profile-container">
-      <h1 class="page-title">Profile</h1>
+  <nav class="navbar">
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="movies.html">Movies</a></li>
+      <li><a href="tv_shows.html">TV Shows</a></li>
+      <li><a class="active" href="profile.html">Profile</a></li>
+      <li><a href="about_us.html">About Us</a></li>
+    </ul>
+  </nav>
 
-      <div id="alerts"></div>
+  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+</header>
 
-      <!-- LOGIN FORM -->
-      <section id="login-section" class="profile-card">
-        <h2>Log In to Your Account</h2>
+  <!-- ================= MAIN ================= -->
+<main>
+  <div class="container profile-container">
+    <h1 class="page-title">Profile</h1>
 
-        <form id="login-form">
-          <div class="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              id="email"
-              placeholder="Enter your email"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              id="password"
-              placeholder="Enter your password"
-              required
-            />
-          </div>
-
-          <button type="submit" class="profile-button">
-            Log In
-          </button>
-        </form>
-      </section>
-
-      <!-- LOGGED IN VIEW -->
-      <section id="profile-section" class="profile-card" style="display: none;">
-        <h2>Welcome Back</h2>
-
-        <p>You are logged in as:</p>
-        <p id="user-email" class="user-email"></p>
-
-        <button id="logout-button" class="profile-button logout-button">
-          Log Out
-        </button>
-      </section>
+    <!-- == TOGGLE BUTTONS == -->
+    <div class="form-toggle">
+      <button id="loginBtn" class="active" type="button">Login</button>
+      <button id="signupBtn" type="button">Sign Up</button>
     </div>
-  </main>
+
+    <div id="alerts"></div>
+
+    <!-- ================= SIGNUP ================= -->
+    <section id="signupSection" class="profile-card" style="display:none;">
+      <h2>Create Account</h2>
+
+      <form id="signupForm">
+        <input id="signupEmail" type="email" placeholder="Email" required />
+        <input id="signupPassword" type="password" placeholder="Password" required />
+        <button class="profile-button" type="submit">Sign Up</button>
+      </form>
+    </section>
+
+    <!-- ================= LOGIN ================= -->
+    <section id="loginSection" class="profile-card">
+      <h2>Login</h2>
+
+      <form id="loginForm">
+        <input id="loginEmail" type="email" placeholder="Email" required />
+        <input id="loginPassword" type="password" placeholder="Password" required />
+        <button class="profile-button" type="submit">Login</button>
+      </form>
+    </section>
+
+    <!-- ================= PROFILE ================= -->
+    <section id="profileSection" class="profile-card" style="display:none;">
+      <h2>Welcome</h2>
+      <p id="userEmail"></p>
+
+      <button id="logoutBtn" class="profile-button logout-button">
+        Logout
+      </button>
+    </section>
+
+  </div>
+</main>
+
 
   <!-- FOOTER -->
   <footer class="site-footer">
@@ -196,28 +251,13 @@
 
       <div class="footer-section social">
         <h4>Follow Us</h4>
-        <a href="https://instagram.com" target="_blank">
-          <img
-            src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg"
-            alt="Instagram"
-          />
-          Instagram
-        </a>
-        <a href="https://facebook.com" target="_blank">
-          <img
-            src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg"
-            alt="Facebook"
-          />
-          Facebook
-        </a>
+        <a href="https://instagram.com" target="_blank">Instagram</a>
+        <a href="https://facebook.com" target="_blank">Facebook</a>
       </div>
 
       <div class="footer-section contact">
         <h4>Contact</h4>
-        <p>
-          Email:
-          <a href="mailto:ourcine@cinetv.ie">ourcine@cinetv.ie</a>
-        </p>
+        <p>Email: <a href="mailto:ourcine@cinetv.ie">ourcine@cinetv.ie</a></p>
         <p>Phone: <a href="tel:+00680980">+00 680 980</a></p>
       </div>
 
@@ -230,4 +270,3 @@
   </footer>
 
 </body>
-</html>

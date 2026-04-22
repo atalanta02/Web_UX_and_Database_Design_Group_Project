@@ -31,6 +31,14 @@ body {
   min-height: 800px;
 }
 
+/* == BACKGROUND GLOW == */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255,0,0,0.08), transparent 70%);
+  pointer-events: none;
+}
 /* == MAIN CONTENT == */
 main {
   min-height: 80vh;
@@ -39,9 +47,11 @@ main {
 }
 
 .page-title {
-  font-size: 3rem;
-  margin-bottom: 30px;
   text-align: center;
+  font-size: 3.5rem;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  letter-spacing: 1px; 
   color: var(--text-main);
   text-transform: uppercase;
 }
@@ -84,6 +94,10 @@ header .navbar a.active {
 
 header .navbar a:hover {
   background: rgb(43, 42, 42);
+}
+
+.menu-toggle {
+  display: none;
 }
 
 /* == MAIN FEATURE == */
@@ -451,88 +465,121 @@ button.secondary:hover,
 
 /* == PROFILE PAGE == */
 
-.profile-container {
-  padding: 3rem 1.5rem 4rem;
-}
-
-.page-title {
-  text-align: center;
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
+/* == CARD CONTAINER == */
 .profile-card {
-  background: #0d0d0d;
-  border: 1px solid red;
-  border-radius: 16px;
+   background: var(--bg-card);
+  border-radius: 15px;
   padding: 2rem;
-  max-width: 500px;
-  margin: 2rem auto;
-  text-align: center;
+  max-width: 400px;
+  border: 2px solid var(--primary-color);
+  margin: 0 auto 30px;
 }
 
+/* == HEADINGS == */
 .profile-card h2 {
-  margin-bottom: 1rem;
-  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-/* FORM */
-.form-group {
-  margin-bottom: 1.2rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: white;
-  font-weight: bold;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 0.85rem 1rem;
-  border: 1px solid red;
+/* == INPUT FIELDS == */
+.profile-card input {
+ width: 100%;
+  padding: 1rem;
   border-radius: 8px;
-  background: #1a1a1a;
-  color: white;
-  outline: none;
+  background: #222;
+  color: var(--text-main);
+  margin-bottom: 1rem;
+  border: 1px solid var(--primary-color);
 }
 
-/* BUTTONS */
-.profile-button {
-  background: red;
+/* == INPUT FOCUS EFFECT == */
+.profile-card input:focus {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 8px;
+  background: #222;
+  color: var(--text-main);
+  margin-bottom: 1rem;
+  border: 1px solid var(--primary-color);
+}
+
+/* == PLACEHOLDER == */
+.profile-card input::placeholder {
+  color: #888;
+}
+
+/* == TOGGLE BUTTONS CONTAINER == */
+.form-toggle {
+  display: flex;
+  gap: 10px; /* better than space-between for consistency */
+  margin: 5px auto;
+  max-width: 400px;
+}
+
+/* == TOGGLE BUTTONS == */
+.form-toggle button {
+  flex: 1; /* ensures equal width */
+  padding: 12px; /* matches profile-button */
+  border-radius: 12px;
+  border: 2px solid #ff1a1a;
+  background: transparent;
   color: white;
-  border: none;
-  border-radius: 10px;
-  padding: 0.8rem 1.4rem;
-  cursor: pointer;
   font-weight: bold;
-  transition: 0.2s;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.profile-button:hover {
-  background: #cc0000;
+/* == TOGGLE HOVER == */
+.form-toggle button:hover {
+  background: #ff1a1a;
+  box-shadow: 0 0 12px rgba(255, 0, 0, 0.8);
+  transform: scale(1.03);
 }
-
-.logout-button {
-  background: #333;
+/* == ACTIVE TOGGLE BUTTON == */
+.form-toggle button.active {
+  background: #ff1a1a;
+  box-shadow: 0 0 12px rgba(255, 0, 0, 0.8);
 }
-
-.logout-button:hover {
-  background: #555;
-}
-
-/* USER INFO */
-.user-email {
-  margin: 1rem 0 1.5rem;
+/* == BUTTONS == */
+.profile-button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  border-radius: 12px;
+  border: none;
+  background: var(--primary-color);
   color: white;
-  word-break: break-word;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
+/* == BUTTON HOVER == */
+.profile-button:hover {
+  background: #ff3333;
+  box-shadow: 0 0 12px rgba(255, 0, 0, 0.8);
+  transform: scale(1.03);
+}
+
+/* == LOGOUT BUTTON == */
+.logout-button {
+  background: transparent;
+  border: 2px solid #ff1a1a;
+}
+
+/* == LOGOUT HOVER == */
+.logout-button:hover {
+  background: #ff1a1a;
+}
+
+/* == SECTION TRANSITION == */
+section {
+  transition: all 0.3s ease;
+}
 /* ALERTS */
 #alerts {
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 #alerts .success {
@@ -542,6 +589,7 @@ button.secondary:hover,
 #alerts .error {
   color: #ff4d4d;
 }
+
 
 /* == RESPONSIVE FIXES == */
 
@@ -589,14 +637,15 @@ button.secondary:hover,
   .navbar {
     width: 100%;
     display: none;
-    background: var(--primary-color); 
     text-align: center;
+    background: transparent;
   }
 
   /* WHEN MENU IS OPEN */
   .navbar.active {
     display: block;
-    background: var(--accent-color); 
+      background: rgba(0, 0, 0, 0.6); 
+      backdrop-filter: blur(8px); 
   }
 
   /* PUSH TITLE ABOVE NAV WHEN ACTIVE */
@@ -636,3 +685,9 @@ button.secondary:hover,
     z-index: 1003;
   }
 }
+
+
+
+
+
+
