@@ -13,6 +13,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CineTV</title>
     <link rel="stylesheet" href="styles.css" />
+
+    <script>
+      function toggleMenu() {
+        const navbar = document.querySelector('.navbar');
+        const header = document.querySelector('.header');
+
+        navbar.classList.toggle('active');
+        header.classList.toggle('menu-open');
+      }
+    </script>
   </head>
   <body>
     <!-- header -->
@@ -35,6 +45,7 @@
         </ul>
       </nav>
       <!-- navbar ends -->
+       <div class="menu-toggle" onclick="toggleMenu()">☰</div>
     </header>
     <!-- header ends-->
 
@@ -76,6 +87,7 @@
       </div>
       <div class="footer-bottom">
         <p>&copy; 2026 CineTV</p>
+        <p>Manage your movies, your way.</p>
       </div>
     </footer>
     <!-- footer section end-->

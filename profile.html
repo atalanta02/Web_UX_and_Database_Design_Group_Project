@@ -102,6 +102,14 @@
       const alerts = document.getElementById("alerts");
       alerts.innerHTML = `<div class="${type}">${message}</div>`;
     }
+
+    function toggleMenu() {
+      const navbar = document.querySelector('.navbar');
+      const header = document.querySelector('.header');
+
+      navbar.classList.toggle('active');
+      header.classList.toggle('menu-open');
+    }
   </script>
 </head>
 
@@ -120,12 +128,13 @@
           <li><a href="index.html">Home</a></li>
           <li><a href="movies.html">Movies</a></li>
           <li><a class="tv_shows.html">TV Shows</a></li>
-          <li><a href="search.html">Search</a></li>
-          <li><a href="active" href="./profile.html">Profile</a></li>
+          <li><a href="tv_shows.html">TV Shows</a></li>
+          <li><a class="active" href="./profile.html">Profile</a></li>
           <li><a href="about_us.html">About Us</a></li>
         </ul>
       </nav>
       <!-- navbar ends -->
+       <div class="menu-toggle" onclick="toggleMenu()">☰</div>
     </header>
     <!-- header ends-->
 
@@ -216,6 +225,7 @@
 
     <div class="footer-bottom">
       <p>&copy; 2026 CineTV</p>
+      <p>Manage your movies, your way.</p>
     </div>
   </footer>
 
