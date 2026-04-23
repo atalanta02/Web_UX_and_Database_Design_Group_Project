@@ -30,6 +30,7 @@
 
     let supabaseClient;
     let currentType = "all";
+    let currentSort = null;
 
     // == INIT ==
     window.addEventListener("DOMContentLoaded", async () => {
@@ -57,11 +58,18 @@
       const search = document.getElementById("searchInput").value;
 
       tableBody.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
-
+      
       let query = supabaseClient
         .from("movie")
         .select("id, title, description, image_url, type_id")
-        .order("id", { ascending: true });
+        
+        if (currentSort === "az") {
+          query = query.order("title", { ascending: true });
+        } else if (currentSort === "za") {
+          query = query.order("title", { ascending: false });
+        } else {
+          query = query.order("id", { ascending: true }); // default
+        }
 
       // filter by type
       if (currentType !== "all") {
@@ -103,47 +111,8 @@
           <td><img src="${movie.image_url || ""}" width="50"></td>
           <td>${movie.title ?? ""}</td>
           <td>${movie.type_id == 1 ? "Movie" : "TV Show"}</td>
-          <td>
-            <button class="btn-edit">Edit</button>
-            <button class="btn-delete">Delete</button>
-          </td>
+          <td></td>
         `;
-
-        // == EDIT BUTTON ==
-        row.querySelector(".btn-edit").addEventListener("click", () => {
-          window.location.href = `index.html#movie-${movie.id}`;
-        });
-
-        // == DELETE BUTTON ==
-        row.querySelector(".btn-delete").addEventListener("click", async (e) => {
-          const btn = e.target;
-
-          if (!confirm(`Delete movie ID ${movie.id}?`)) return;
-
-          btn.disabled = true;
-
-          const { data: deletedData, error } = await supabaseClient
-            .from("movie")
-            .delete()
-            .eq("id", movie.id)
-            .select("id");
-
-          if (error) {
-            alert("Delete failed: " + error.message);
-            btn.disabled = false;
-            return;
-          }
-
-          if (!deletedData || deletedData.length === 0) {
-            alert("Movie was not deleted.");
-            btn.disabled = false;
-            return;
-          }
-
-          // remove row from table instantly
-          row.remove();
-        });
-
         tableBody.appendChild(row);
       });
     }
@@ -161,6 +130,18 @@
         navbar.classList.toggle('active');
         header.classList.toggle('menu-open');
       }
+
+      function setSort(sort) {
+        currentSort = sort;
+
+        document.querySelectorAll(".sort-btn").forEach(btn => {
+           btn.classList.remove("active");
+        });
+
+        event.target.classList.add("active");
+
+        fetchMovies();
+}
     </script>
   </head>
   <body>
@@ -195,6 +176,8 @@
           <button class="btn-filter" onclick="setType('all')">All</button>
           <button class="btn-filter" onclick="setType('movie')">Movies</button>
           <button class="btn-filter" onclick="setType('show')">Shows</button>
+          <button class="btn-filter" onclick="setSort('az')">A–Z</button>
+          <button class="btn-filter" onclick="setSort('za')">Z–A</button>
           <input type="text" id="searchInput" placeholder="Search..." oninput="applyFilters()">
 
           <table class="crud-table">
@@ -204,7 +187,6 @@
                 <th>Image</th>
                 <th>Title</th>
                 <th>Type</th>
-                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="movie-table-body"></tbody>
