@@ -71,8 +71,8 @@ main {
   padding: 0 5vw;
   background: linear-gradient(135deg, var(--primary-color) 0%, #b8070f 100%);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  position: sticky;
   top: 0;
+  position: sticky;
   z-index: 1000;
 }
 
@@ -91,8 +91,6 @@ main {
 
 .navbar ul {
   list-style: none;
-  display: flex;
-  align-items: center;
 }
 
 .navbar li {
@@ -142,7 +140,7 @@ header .navbar a:hover {
 
 .featured-title {
   position: absolute;
-  bottom: 100px;
+  bottom: 150px;
   left: 30px;
   font-size: 4rem;
   font-weight: 800;
@@ -236,15 +234,14 @@ header .navbar a:hover {
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  gap: 25px;
+  gap: 20px;
   flex-wrap: nowrap;
-  margin: 1rem 0;
 }
 
 .radio-group label {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
   font-size: 1.3rem;
   color: var(--text-muted);
   white-space: nowrap;
@@ -301,6 +298,13 @@ header .navbar a:hover {
   padding: 0 20px;
 }
 
+.table-wrapper h3 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  color: var(--text-main);
+}
+
 .crud-table {
   width: 100%;
   border-collapse: collapse;
@@ -308,6 +312,13 @@ header .navbar a:hover {
   margin-bottom: 20px;
   border-radius: 10px;
   overflow: hidden;
+}
+
+.crud-table caption {
+  font-weight: bold;
+   font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: var(--primary-color);
 }
 
 .crud-table th {
@@ -318,11 +329,7 @@ header .navbar a:hover {
   letter-spacing: 0.5px;
 }
 
-.crud-table caption {
-  font-size: 4rem;
-  margin-bottom: 2rem;
-  color: var(--text-main);
-}
+
 
 .crud-table th,
 .crud-table td {
@@ -858,9 +865,9 @@ section {
 
   /* NAV LINKS */
   .navbar li {
+    margin-top: 10px;
     display: block;
     padding: 20px;
-    margin: 0;
   }
 
   .navbar a {
