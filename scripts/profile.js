@@ -2,41 +2,32 @@ const SUPABASE_URL = "https://jtqkbhgucspgklccgawd.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0cWtiaGd1Y3NwZ2tsY2NnYXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMjE4NTIsImV4cCI6MjA3NTU5Nzg1Mn0.fBiGoem1tfS2RInqdBv9EekdIdw5ydQIPUl_JewMJ_M";
 
+// message system
 function showMessage(msg, type) {
-  document.getElementById("alerts").innerHTML = `<div class="${type}">${msg}</div>`;
+  const alerts = document.getElementById("alerts");
+  alerts.innerHTML = `<div class="${type}">${msg}</div>`;
+
+  setTimeout(() => {
+    alerts.innerHTML = "";
+  }, 3000);
+}
+
+function clearMessage() {
+  document.getElementById("alerts").innerHTML = "";
 }
 
 function toggleMenu() {
-  const navbar = document.querySelector(".navbar");
-  const header = document.querySelector(".header");
-
-  navbar.classList.toggle("active");
-  header.classList.toggle("menu-open");
-}
-function renderUser(user) {
-  if (user) {
-    profileSection.style.display = "block";
-    loginSection.style.display = "none";
-    signupSection.style.display = "none";
-
-    userEmail.textContent = user.email;
-  } else {
-    profileSection.style.display = "none";
-    showLogin();
- }
+  document.querySelector(".navbar").classList.toggle("active");
+  document.querySelector(".header").classList.toggle("menu-open");
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("SCRIPT LOADED");
 
-  if (!window.supabase) {
-    console.error("Supabase not loaded");
-    return;
-  }
+  if (!window.supabase) return;
 
   const supabase = window.supabase.createClient(
     SUPABASE_URL,
-    SUPABASE_ANON_KEY,
+    SUPABASE_ANON_KEY
   );
 
   const loginBtn = document.getElementById("loginBtn");
@@ -48,118 +39,125 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const userEmail = document.getElementById("userEmail");
 
-  if (!loginBtn || !signupBtn || !loginSection || !signupSection) {
-    console.error("Missing HTML elements");
-    return;
-  }
+  const signupForm = document.getElementById("signupForm");
+  const loginForm = document.getElementById("loginForm");
 
+  // clear forms on load
+  signupForm.reset();
+  loginForm.reset();
+
+  // UI switches
   function showLogin() {
     loginSection.style.display = "block";
     signupSection.style.display = "none";
+    profileSection.style.display = "none";
 
     loginBtn.classList.add("active");
     signupBtn.classList.remove("active");
+
+    clearMessage();
   }
 
   function showSignup() {
     loginSection.style.display = "none";
     signupSection.style.display = "block";
+    profileSection.style.display = "none";
 
     signupBtn.classList.add("active");
     loginBtn.classList.remove("active");
+
+    clearMessage();
+  }
+
+  function renderUser(user) {
+    if (user) {
+      profileSection.style.display = "block";
+      loginSection.style.display = "none";
+      signupSection.style.display = "none";
+
+      userEmail.textContent = user.email;
+    } else {
+      showLogin();
+    }
   }
 
   loginBtn.addEventListener("click", showLogin);
   signupBtn.addEventListener("click", showSignup);
 
-  showLogin();
+  // auth listener
+  supabase.auth.onAuthStateChange((event, session) => {
+    renderUser(session?.user || null);
+  });
 
-  async function checkUser() {
-    const { data } = await supabase.auth.getUser();
-    try {
-      if (data.user) {
-        renderUser(data.user);
-      } else {
-        showLogin();
-      }
-    } catch (error) {
-      console.error(error.message);
-      return showMessage(error.message, "error");
-    }
-  }
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  checkUser();
+  renderUser(user);
 
   let isSigningUp = false;
   let isLoggingIn = false;
 
-  document
-    .getElementById("signupForm")
-    .addEventListener("submit", async (e) => {
-      e.preventDefault();
+  // signup
+  signupForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-      console.log("SIGNUP CLICK");
+    if (isSigningUp) return;
+    isSigningUp = true;
 
-      if (isSigningUp) return;
-      isSigningUp = true;
+    const emailInput = document.getElementById("signupEmail");
+    const passwordInput = document.getElementById("signupPassword");
 
-      const btn = e.target.querySelector("button");
-      btn.disabled = true;
-
-      const email = document.getElementById("signupEmail").value;
-      const password = document.getElementById("signupPassword").value;
-
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
-      btn.disabled = false;
-      isSigningUp = false;
-
-      if (error) {
-        console.error(error.message);
-        return showMessage(error.message, "error");
-      }
-
-      showMessage("Signup successful! Now log in.", "success");
-      showLogin();
+    const { error } = await supabase.auth.signUp({
+      email: emailInput.value,
+      password: passwordInput.value,
     });
 
-  document
-    .getElementById("loginForm")
-    .addEventListener("submit", async (e) => {
-      e.preventDefault();
+    isSigningUp = false;
 
-      console.log("LOGIN CLICK");
+    if (error) return showMessage(error.message, "error");
 
-      if (isLoggingIn) return;
-      isLoggingIn = true;
+    signupForm.reset();
 
-      const btn = e.target.querySelector("button");
-      btn.disabled = true;
-
-      const email = document.getElementById("loginEmail").value;
-      const password = document.getElementById("loginPassword").value;
-
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      btn.disabled = false;
-      isLoggingIn = false;
-
-      if (error) {
-        console.error(error.message);
-        return showMessage(error.message, "error");
-      }
-
-      checkUser();
+    requestAnimationFrame(() => {
+      emailInput.value = "";
+      passwordInput.value = "";
     });
 
+    showMessage("Signup successful! Now log in.", "success");
+    showLogin();
+  });
+
+  // login
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    if (isLoggingIn) return;
+    isLoggingIn = true;
+
+    const emailInput = document.getElementById("loginEmail");
+    const passwordInput = document.getElementById("loginPassword");
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: emailInput.value,
+      password: passwordInput.value,
+    });
+
+    isLoggingIn = false;
+
+    if (error) return showMessage(error.message, "error");
+
+    loginForm.reset();
+
+    requestAnimationFrame(() => {
+      emailInput.value = "";
+      passwordInput.value = "";
+    });
+  });
+
+  // logout
   document.getElementById("logoutBtn").addEventListener("click", async () => {
     await supabase.auth.signOut();
-    checkUser();
+    clearMessage();
   });
 });

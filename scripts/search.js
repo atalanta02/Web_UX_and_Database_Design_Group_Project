@@ -5,6 +5,7 @@ const SUPABASE_ANON_KEY =
 
 let supabaseClient;
 let currentType = "all";
+let currentSort = null;
 
 // == INIT ==
 window.addEventListener("DOMContentLoaded", async () => {
@@ -13,8 +14,10 @@ window.addEventListener("DOMContentLoaded", async () => {
     SUPABASE_ANON_KEY,
   );
 
+  // load movies on start
   await fetchMovies();
 
+  // search with debounce
   const searchInput = document.getElementById("searchInput");
 
   let debounceTimer;
@@ -33,14 +36,23 @@ async function fetchMovies() {
 
   let query = supabaseClient
     .from("movie")
-    .select("id, title, description, image_url, type_id")
-    .order("id", { ascending: true });
+    .select("id, title, description, image_url, type_id");
 
+  if (currentSort === "az") {
+    query = query.order("title", { ascending: true });
+  } else if (currentSort === "za") {
+    query = query.order("title", { ascending: false });
+  } else {
+    query = query.order("id", { ascending: true }); // default
+  }
+
+  // filter by type
   if (currentType !== "all") {
     const typeValue = currentType === "movie" ? 1 : 2;
     query = query.eq("type_id", typeValue);
   }
 
+  // search filter
   if (search) {
     query = query.ilike("title", `%${search}%`);
   }
@@ -74,54 +86,14 @@ function renderMovies(data) {
           <td><img src="${movie.image_url || ""}" width="50"></td>
           <td>${movie.title ?? ""}</td>
           <td>${movie.type_id == 1 ? "Movie" : "TV Show"}</td>
-          <td>
-            <button class="btn-edit">Edit</button>
-            <button class="btn-delete">Delete</button>
-          </td>
         `;
-
-    row.querySelector(".btn-edit").addEventListener("click", () => {
-      window.location.href = `index.html#movie-${movie.id}`;
-    });
-
-    row.querySelector(".btn-delete").addEventListener("click", async (e) => {
-      const btn = e.target;
-
-      if (!confirm(`Delete movie ID ${movie.id}?`)) return;
-
-      btn.disabled = true;
-
-      const { data: deletedData, error } = await supabaseClient
-        .from("movie")
-        .delete()
-        .eq("id", movie.id)
-        .select("id");
-
-      if (error) {
-        alert("Delete failed: " + error.message);
-        btn.disabled = false;
-        return;
-      }
-
-      if (!deletedData || deletedData.length === 0) {
-        alert("Movie was not deleted.");
-        btn.disabled = false;
-        return;
-      }
-
-      row.remove();
-    });
-
     tableBody.appendChild(row);
   });
 }
 
+// == FILTER BUTTONS ==
 function setType(type) {
   currentType = type;
-  fetchMovies();
-}
-
-function applyFilters() {
   fetchMovies();
 }
 
@@ -131,4 +103,16 @@ function toggleMenu() {
 
   navbar.classList.toggle("active");
   header.classList.toggle("menu-open");
+}
+
+function setSort(sort) {
+  currentSort = sort;
+
+  document.querySelectorAll(".sort-btn").forEach((btn) => {
+    btn.classList.remove("active");
+  });
+
+  event.target.classList.add("active");
+
+  fetchMovies();
 }
