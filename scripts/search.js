@@ -13,8 +13,6 @@ window.addEventListener("DOMContentLoaded", async () => {
     SUPABASE_URL,
     SUPABASE_ANON_KEY,
   );
-
-  // load movies on start
   await fetchMovies();
 
   // search with debounce

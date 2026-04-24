@@ -5,14 +5,29 @@ const SUPABASE_ANON_KEY =
 
 let supabaseClient;
 let editingMovie = null;
+let crudListenersBound = false;
+let moviesTableName = "movie";
 
-window.addEventListener("DOMContentLoaded", async () => {
-  supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY,
-  );
+async function resolveMoviesTableName() {
+  const candidates = ["movie", "Movie"];
+  for (const name of candidates) {
+    const { error } = await supabaseClient.from(name).select("id").limit(1);
+    if (!error) return name;
+    if (
+      !error.message ||
+      !/could not find the table|relation .* does not exist|table .* does not exist/i.test(
+        error.message,
+      )
+    ) {
+      break;
+    }
+  }
+  return "movie";
+}
 
-  await loadMovies();
+function bindCrudListeners() {
+  if (crudListenersBound) return;
+  crudListenersBound = true;
 
   document
     .getElementById("create-movie-form")
@@ -36,6 +51,61 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     document.getElementById("crud-message").textContent = "";
   });
+}
+
+function setManageFormsEnabled(canManage) {
+  const hint = document.getElementById("manage-auth-hint");
+  if (hint) {
+    if (canManage) {
+      hint.textContent = "";
+      hint.hidden = true;
+    } else {
+      hint.textContent =
+        "Sign in on Profile to add, edit, or delete entries. Everyone can view this list.";
+      hint.hidden = false;
+    }
+  }
+
+  ["create-movie-form", "update-movie-form"].forEach((formId) => {
+    const form = document.getElementById(formId);
+    if (!form) return;
+    form.querySelectorAll("input, textarea, button").forEach((el) => {
+      el.disabled = !canManage;
+    });
+  });
+}
+
+async function initManagePage() {
+  moviesTableName = await resolveMoviesTableName();
+  bindCrudListeners();
+  await loadMovies();
+}
+
+window.addEventListener("DOMContentLoaded", async () => {
+  supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
+  );
+
+  await initManagePage();
+
+  supabaseClient.auth.onAuthStateChange(async (event) => {
+    if (event === "SIGNED_OUT") {
+      editingMovie = null;
+      document.getElementById("update-movie-form").classList.add("hidden");
+      document.getElementById("create-movie-form").classList.remove("hidden");
+      document.getElementById("crud-message").textContent =
+        "Signed out. You can still browse the catalog below.";
+      setTimeout(() => {
+        document.getElementById("crud-message").textContent = "";
+      }, 4000);
+      await loadMovies();
+      return;
+    }
+    if (event === "SIGNED_IN") {
+      await loadMovies();
+    }
+  });
 });
 
 async function loadMovies() {
@@ -44,20 +114,28 @@ async function loadMovies() {
 
   tableBody.innerHTML = '<tr><td colspan="6">Loading data…</td></tr>';
 
+  const {
+    data: { user },
+  } = await supabaseClient.auth.getUser();
+  const canManage = !!user;
+
   const { data, error } = await supabaseClient
-    .from("movie")
+    .from(moviesTableName)
     .select("id, title, description, image_url, type_id")
     .order("id", { ascending: true });
 
   if (error) {
     tableBody.innerHTML = '<tr><td colspan="6">Error loading data</td></tr>';
     statusEl.textContent = error.message;
+    console.error("loadMovies:", error);
+    setManageFormsEnabled(false);
     return;
   }
 
   if (!data || data.length === 0) {
     tableBody.innerHTML = '<tr><td colspan="6">No movies found</td></tr>';
-    statusEl.textContent = "Tip: add movies in Supabase Table Editor.";
+    statusEl.textContent = "Tip: add titles in Supabase or sign in to use the form above.";
+    setManageFormsEnabled(canManage);
     return;
   }
 
@@ -76,40 +154,60 @@ async function loadMovies() {
 
     const actionsTd = document.createElement("td");
 
-    const editBtn = document.createElement("button");
-    editBtn.textContent = "Edit";
-    editBtn.classList.add("btn-edit");
+    if (canManage) {
+      const editBtn = document.createElement("button");
+      editBtn.textContent = "Edit";
+      editBtn.classList.add("btn-edit");
 
-    editBtn.addEventListener("click", () => {
-      editMovie(
-        movie.id,
-        movie.title || "",
-        movie.description || "",
-        movie.image_url || "",
-        movie.type_id || "",
-      );
-    });
+      editBtn.addEventListener("click", () => {
+        editMovie(
+          movie.id,
+          movie.title || "",
+          movie.description || "",
+          movie.image_url || "",
+          movie.type_id || "",
+        );
+      });
 
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "Delete";
-    deleteBtn.classList.add("btn-delete");
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "Delete";
+      deleteBtn.classList.add("btn-delete");
 
-    deleteBtn.addEventListener("click", () => {
-      deleteMovie(movie.id, deleteBtn);
-    });
+      deleteBtn.addEventListener("click", () => {
+        deleteMovie(movie.id, deleteBtn);
+      });
 
-    actionsTd.appendChild(editBtn);
-    actionsTd.appendChild(deleteBtn);
+      actionsTd.appendChild(editBtn);
+      actionsTd.appendChild(deleteBtn);
+    } else {
+      actionsTd.textContent = "—";
+    }
 
     row.appendChild(actionsTd);
     tableBody.appendChild(row);
   });
 
   statusEl.textContent = "";
+  setManageFormsEnabled(canManage);
+}
+
+async function assertCanMutate(statusEl) {
+  const {
+    data: { user },
+    error,
+  } = await supabaseClient.auth.getUser();
+  if (error || !user) {
+    statusEl.textContent =
+      "Sign in on Profile to add, edit, or delete entries.";
+    return false;
+  }
+  return true;
 }
 
 async function deleteMovie(movieId, btnEl) {
   const statusEl = document.getElementById("crud-message");
+
+  if (!(await assertCanMutate(statusEl))) return;
 
   if (!confirm(`Delete movie ID ${movieId}?`)) return;
 
@@ -117,19 +215,27 @@ async function deleteMovie(movieId, btnEl) {
   statusEl.textContent = "Deleting...";
 
   try {
-    const { data, error } = await supabaseClient
-      .from("movie")
-      .delete()
-      .eq("id", movieId)
-      .select("id");
+    const { data: refreshed, error: refreshErr } =
+      await supabaseClient.auth.refreshSession();
+    if (refreshErr || !refreshed.session) {
+      statusEl.textContent =
+        "Session expired. Sign in again on Profile.";
+      return;
+    }
+
+    const { error, count } = await supabaseClient
+      .from(moviesTableName)
+      .delete({ count: "exact" })
+      .eq("id", movieId);
 
     if (error) {
       statusEl.textContent = "Delete failed: " + error.message;
       return;
     }
 
-    if (!data || data.length === 0) {
-      statusEl.textContent = "Not deleted in Supabase.";
+    if (count === null || count === 0) {
+      statusEl.textContent =
+        "Nenhuma linha foi eliminada. Com sessão iniciada, o Supabase usa o papel authenticated: em SQL Editor execute Database/rls_movie_authenticated.sql (ou políticas equivalentes para UPDATE/DELETE em movie).";
       return;
     }
 
@@ -145,6 +251,8 @@ async function deleteMovie(movieId, btnEl) {
 
 async function addMovie() {
   const statusEl = document.getElementById("crud-message");
+
+  if (!(await assertCanMutate(statusEl))) return;
 
   let titleInput, descriptionInput, imageUrlInput, typeInput;
 
@@ -172,41 +280,57 @@ async function addMovie() {
 
   statusEl.textContent = "Saving...";
 
+  const { data: refreshed, error: refreshErr } =
+    await supabaseClient.auth.refreshSession();
+  if (refreshErr || !refreshed.session) {
+    statusEl.textContent =
+      "Session expired. Sign in again on Profile.";
+    return;
+  }
+
+  const wasEditing = !!editingMovie;
   let result;
 
   if (editingMovie) {
     result = await supabaseClient
-      .from("movie")
+      .from(moviesTableName)
       .update({
         title,
         description,
         image_url,
         type_id: parseInt(type),
       })
-      .eq("id", editingMovie);
+      .eq("id", editingMovie)
+      .select("id");
   } else {
-    const { data: existingIds } = await supabaseClient
-      .from("movie")
-      .select("id")
-      .order("id", { ascending: false })
-      .limit(1);
-
-    const nextId =
-      existingIds && existingIds.length > 0 ? existingIds[0].id + 1 : 1;
-
-    result = await supabaseClient.from("movie").insert([
-      {
-        id: nextId,
-        title,
-        description,
-        image_url,
-        type_id: parseInt(type),
-      },
-    ]);
+    // SERIAL id: omit so the database generates the next value
+    result = await supabaseClient
+      .from(moviesTableName)
+      .insert([
+        {
+          title,
+          description,
+          image_url,
+          type_id: parseInt(type),
+        },
+      ])
+      .select("id");
   }
 
   if (result.error) {
     statusEl.textContent = "Save failed: " + result.error.message;
+    return;
+  }
+
+  if (wasEditing && (!result.data || result.data.length === 0)) {
+    statusEl.textContent =
+      "Nenhuma linha foi atualizada. Confira RLS no Supabase para UPDATE na tabela movie para o papel authenticated (ficheiro Database/rls_movie_authenticated.sql).";
+    return;
+  }
+
+  if (!wasEditing && (!result.data || result.data.length === 0)) {
+    statusEl.textContent =
+      "O registo não foi criado. Confira RLS para INSERT na tabela movie (papel authenticated).";
     return;
   }
 

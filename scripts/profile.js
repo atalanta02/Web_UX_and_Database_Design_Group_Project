@@ -2,16 +2,14 @@ const SUPABASE_URL = "https://jtqkbhgucspgklccgawd.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0cWtiaGd1Y3NwZ2tsY2NnYXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMjE4NTIsImV4cCI6MjA3NTU5Nzg1Mn0.fBiGoem1tfS2RInqdBv9EekdIdw5ydQIPUl_JewMJ_M";
 
-// message system (UPDATED)
-function showMessage(msg, type = "info", persist = false) {
+// message system
+function showMessage(msg, type) {
   const alerts = document.getElementById("alerts");
   alerts.innerHTML = `<div class="${type}">${msg}</div>`;
 
-  if (!persist) {
-    setTimeout(() => {
-      alerts.innerHTML = "";
-    }, 3000);
-  }
+  setTimeout(() => {
+    alerts.innerHTML = "";
+  }, 3000);
 }
 
 function clearMessage() {
@@ -44,9 +42,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const signupForm = document.getElementById("signupForm");
   const loginForm = document.getElementById("loginForm");
 
+  // clear forms on load
   signupForm.reset();
   loginForm.reset();
 
+  // UI switches
   function showLogin() {
     loginSection.style.display = "block";
     signupSection.style.display = "none";
@@ -76,8 +76,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       signupSection.style.display = "none";
 
       userEmail.textContent = user.email;
-
-      showMessage("Welcome back!", "success");
     } else {
       showLogin();
     }
@@ -86,11 +84,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   loginBtn.addEventListener("click", showLogin);
   signupBtn.addEventListener("click", showSignup);
 
+  // auth listener
   supabase.auth.onAuthStateChange((event, session) => {
     renderUser(session?.user || null);
   });
-
-  showMessage("Checking session...", "info", true);
 
   const {
     data: { user },
@@ -102,40 +99,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   let isLoggingIn = false;
 
   // signup
-signupForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
+  signupForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  if (isSigningUp) return;
-  isSigningUp = true;
+    if (isSigningUp) return;
+    isSigningUp = true;
 
-  showMessage("Creating account...", "info", true);
+    const emailInput = document.getElementById("signupEmail");
+    const passwordInput = document.getElementById("signupPassword");
 
-  const emailInput = document.getElementById("signupEmail");
-  const passwordInput = document.getElementById("signupPassword");
+    const { error } = await supabase.auth.signUp({
+      email: emailInput.value,
+      password: passwordInput.value,
+    });
 
-  const { error } = await supabase.auth.signUp({
-    email: emailInput.value,
-    password: passwordInput.value,
+    isSigningUp = false;
+
+    if (error) return showMessage(error.message, "error");
+
+    signupForm.reset();
+
+    requestAnimationFrame(() => {
+      emailInput.value = "";
+      passwordInput.value = "";
+    });
+
+    showMessage("Signup successful! Now log in.", "success");
+    showLogin();
   });
-
-  isSigningUp = false;
-
-  if (error) return showMessage(error.message, "error");
-
-  signupForm.reset();
-
-  requestAnimationFrame(() => {
-    emailInput.value = "";
-    passwordInput.value = "";
-  });
-
-  showMessage(
-    "Account created successfully! Check your email to confirm.",
-    "success"
-  );
-
-  showLogin();
-});
 
   // login
   loginForm.addEventListener("submit", async (e) => {
@@ -143,8 +134,6 @@ signupForm.addEventListener("submit", async (e) => {
 
     if (isLoggingIn) return;
     isLoggingIn = true;
-
-    showMessage("Logging in...", "info", true);
 
     const emailInput = document.getElementById("loginEmail");
     const passwordInput = document.getElementById("loginPassword");
@@ -156,7 +145,7 @@ signupForm.addEventListener("submit", async (e) => {
 
     isLoggingIn = false;
 
-    if (error) return showMessage("Wrong email or password", "error");
+    if (error) return showMessage(error.message, "error");
 
     loginForm.reset();
 
@@ -164,16 +153,11 @@ signupForm.addEventListener("submit", async (e) => {
       emailInput.value = "";
       passwordInput.value = "";
     });
-
-    showMessage("Logged in successfully!", "success");
   });
 
   // logout
   document.getElementById("logoutBtn").addEventListener("click", async () => {
-    showMessage("Logging out...", "info", true);
-
     await supabase.auth.signOut();
-
-    showMessage("Logged out successfully", "success");
+    clearMessage();
   });
 });
