@@ -1,4 +1,4 @@
-Insert into Type values(2, 'reality show');
+Insert into Type values(3, 'reality show');
 
 delete from Type
 where id =1;
