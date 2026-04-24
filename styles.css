@@ -319,8 +319,8 @@ header .navbar a:hover {
 }
 
 .crud-table caption {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
+  font-size: 4rem;
+  margin-bottom: 2rem;
   color: var(--text-main);
 }
 
