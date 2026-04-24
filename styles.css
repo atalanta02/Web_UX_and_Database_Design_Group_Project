@@ -301,7 +301,7 @@ header .navbar a:hover {
   padding: 0 20px;
 }
 
-.table-wrapper h3 {
+caption {
   font-size: 2rem;
   margin-bottom: 1.5rem;
   color: var(--text-main);
