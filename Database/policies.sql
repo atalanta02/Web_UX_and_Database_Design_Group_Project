@@ -78,6 +78,27 @@ USING (true);
 CREATE POLICY "Authenticated users can modify type"
 ON public.type
 FOR ALL
-TO anon, authenticated
-USING (true)
-WITH CHECK (true);
+TO authenticated
+USING (auth.uid() IS NOT NULL)
+WITH CHECK (auth.uid() IS NOT NULL);
+
+
+
+/* =========================
+   👤 USERPROFILE POLICIES
+   ========================= */
+
+-- Users can read their own profile
+CREATE POLICY "Users can read their own profile"
+ON public.userprofile
+FOR SELECT
+TO authenticated
+USING (id = auth.uid());
+
+-- Users can update their own profile
+CREATE POLICY "Users can update their own profile"
+ON public.userprofile
+FOR UPDATE
+TO authenticated
+USING (id = auth.uid())
+WITH CHECK (id = auth.uid());
